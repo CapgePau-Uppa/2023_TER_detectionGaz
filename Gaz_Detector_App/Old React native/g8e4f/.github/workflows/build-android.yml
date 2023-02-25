@@ -1,0 +1,39 @@
+name: Build Android Debug APK
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: |
+          yarn install
+      - name: Create debug bundle
+        run: |
+          yarn bundle
+      - name: Grant permissions to gradlew
+        run: |
+          cd android && chmod +x ./gradlew
+      - name: Generate Android debug APK
+        run: |
+          cd android && ./gradlew assembleDebug
+      - name: Upload debug build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/

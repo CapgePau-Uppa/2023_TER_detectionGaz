@@ -16,16 +16,22 @@ void setup()
 void loop()
 {
 
-  float *values = mq2.read(true);
-  Serial.print("MQ2 Read CO : ");
+  char cstr[16];
+  float *values = mq2.read(false);
+  // Serial.print("MQ2 Read CO : ");
   Serial.println(mq2.readCO());
-  Serial.print("Digital Read : ");
-  Serial.println(digitalRead(digital_IN));
-  Serial.print("Analogic Read : ");
-  Serial.println(analogRead(analog_IN));
+  // Serial.print("Digital Read : ");
+  // Serial.println(digitalRead(digital_IN));
+  // Serial.print("Analogic Read : ");
+  // Serial.println(analogRead(analog_IN));
   /*if (digitalRead(digital_IN) == LOW){
     Serial.println("Seuil dépassé : Gaz detecté");
   }*/
+  /*
+  while(Serial.available() > 0) {
+    Serial.write(Serial.read());
+  }*/
+  // Serial.write(itoa(mq2.readCO(), cstr, 10));
 
   Serial.println();
   delay(1000); // wait for a second

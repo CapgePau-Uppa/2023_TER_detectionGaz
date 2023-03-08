@@ -5,19 +5,29 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.Manifest;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -32,19 +42,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Permission;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSION_FINE_LOCATION = 99;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private UsbManager mUsbManager;
     private UsbDevice mDevice = null;
     private UsbSerialDevice mSerial = null;
     private UsbDeviceConnection mConnection = null;
-
     private String ACTION_USB_PERMISSION = "permission";
+
+    private float latitude;
+    private float longitude;
+
+
+    FusedLocationProviderClient fusedLocationProviderClient;
+    LocationRequest locationRequest;
 
     public EditText receive_Data;
 
@@ -77,6 +95,10 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         registerReceiver(broadcastReceiver, filter);
 
+        binding.btnClean.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { cleanTv();}
+        });
         binding.btnOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +124,29 @@ public class MainActivity extends AppCompatActivity {
                 startUsbConnecting();
             }
         });
+
+        updateGPS();
+    }// end OnCreate
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case PERMISSION_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    updateGPS();
+                }
+                else {
+                    Toast.makeText(this, "This app requires permission to be granted in order to work properly", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+        }
+    }
+
+    private void cleanTv() {
+        receive_Data = findViewById(R.id.tvReceive);
+        receive_Data.setText("");
     }
 
     @Override
@@ -145,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             int deviceVendorId = mDevice.getVendorId();
             //Toast.makeText(MainActivity.this, "vendorId" + deviceVendorId , Toast.LENGTH_LONG).show();
 
-            if (deviceVendorId == 6790 ){
+            if (true /*deviceVendorId == 6790*/ ){
                 //Toast.makeText(MainActivity.this, "test1", Toast.LENGTH_LONG).show();
                 PendingIntent intent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION),PendingIntent.FLAG_MUTABLE);
 
@@ -190,7 +235,9 @@ public class MainActivity extends AppCompatActivity {
             //Toast.makeText(MainActivity.this, "Callback Received"+arg0, Toast.LENGTH_SHORT).show();
             try {
                 String data = new String(arg0, "UTF-8");
-                data = data.substring(0, 30);
+                if (data.length()>30){
+                    data = data.substring(0, 30);
+                }
                 data.concat("/n");
                 receive_Data = findViewById(R.id.tvReceive);
                 //Toast.makeText(MainActivity.this, "read : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
@@ -198,12 +245,12 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        receive_Data.setText(finalData);
+                        receive_Data.setText(receive_Data.getText() + finalData);
                     }
                 });
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Exception:"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Exception:"+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -263,5 +310,34 @@ public class MainActivity extends AppCompatActivity {
 
 
     };
+
+    private void updateGPS(){
+        //get permission from user
+        //get the current location from the fused client
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+
+        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    updateUIValues(location);
+                }
+            });
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+            }
+        }
+    }
+
+    private void updateUIValues(Location location) {
+        // Update all text Objects
+
+        receive_Data = findViewById(R.id.tvReceive);
+        receive_Data.setText(" Latitude : " + location.getLatitude() + "Longitude : " + location.getLongitude());
+        //Toast.makeText(MainActivity.this, "Longitude : " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MainActivity.this, "Latitude : " + location.getLatitude(), Toast.LENGTH_SHORT).show();
+    }
 
 }

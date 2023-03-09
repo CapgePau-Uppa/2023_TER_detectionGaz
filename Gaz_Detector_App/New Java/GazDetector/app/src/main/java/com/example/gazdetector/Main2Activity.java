@@ -166,12 +166,12 @@ public class Main2Activity extends AppCompatActivity {
                 }
         }
     }
-
+/*
     private void cleanTv() {
         receive_Data = findViewById(R.id.tvReceive);
         receive_Data.setText("");
     }
-
+*/
     private void startUsbConnecting(){
         HashMap<String, UsbDevice> usbDevices = mUsbManager.getDeviceList();
         if (usbDevices.isEmpty()){
@@ -233,7 +233,9 @@ public class Main2Activity extends AppCompatActivity {
                     data = data.substring(0, 30);
                 }
                 data.concat("/n");
-                receive_Data = findViewById(R.id.tvReceive);
+                /*
+                receive_Data = findViewById(R.id.tvReceive);*/
+
                 //Toast.makeText(MainActivity.this, "read : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
                 String finalData = data;
                 runOnUiThread(new Runnable() {

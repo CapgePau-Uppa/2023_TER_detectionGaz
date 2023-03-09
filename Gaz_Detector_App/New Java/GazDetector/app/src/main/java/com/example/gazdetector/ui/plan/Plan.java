@@ -26,6 +26,7 @@ public class Plan {
     }
 
     public Point getCoordinatesOnPlan(double latitude, double longitude) {
+
         int x = (int) (((longitude - longTopLeft) / (longBottomRight - longTopLeft)) * image.getWidth());
         int y = (int) (((latBottomRight - latitude) / (latBottomRight - latTopLeft)) * image.getHeight());
         return new Point(x, y);

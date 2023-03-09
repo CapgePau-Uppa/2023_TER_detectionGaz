@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.gazdetector.databinding.FragmentPlanBinding;
 
-public class Plan extends Fragment {
+public class PlanView extends Fragment {
 
     private FragmentPlanBinding binding;
 

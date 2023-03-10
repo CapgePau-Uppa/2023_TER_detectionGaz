@@ -41,7 +41,7 @@ Use the 3 wires to connect:
 #### Step 4: Copy the code
 
 - Click on File > New to create a new file. 
-- Copy the code in the/path/to/our/code to your new file
+- Copy the code in path/to/our/code to your new file
 - Verify by clicking on Sketch > Verify/Compile. If you have errors, check if you followed each step and restart the Arduino software.
 
 #### Step 5: Upload

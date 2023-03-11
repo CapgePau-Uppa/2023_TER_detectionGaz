@@ -14,10 +14,17 @@ void setup()
 void loop()
 {
 
-  float *values = mq2.read(true);
+  // float *values = mq2.read(false);
   float smokeLvl = mq2.readSmoke();
-  Serial.print("MQ2 Read SMOKE : ");
-  Serial.println(smokeLvl);
+  float LPGLvl = mq2.readLPG();
+  float COLvl = mq2.readCO();
+  Serial.print("{\"smoke\":");
+  Serial.print(smokeLvl);
+  Serial.print(",\"LPG\":");
+  Serial.print(LPGLvl);
+  Serial.print(",\"CO\":");
+  Serial.print(COLvl);
+  Serial.print("}");
 
   if (smokeLvl > 0.03)
   {

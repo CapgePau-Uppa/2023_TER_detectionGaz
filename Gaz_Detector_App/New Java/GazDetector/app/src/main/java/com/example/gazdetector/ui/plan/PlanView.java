@@ -83,7 +83,7 @@ public class PlanView extends Fragment {
         double longTopLeft = -0.363534,latTopLeft = 43.319279 ;
         double longBottomRight = -0.362978,latBottomRight = 43.319093;
 
-        com.example.gazdetection.Plan plan = new com.example.gazdetection.Plan(
+        com.example.gazdetector.ui.plan.Plan plan = new com.example.gazdetector.ui.plan.Plan(
                 getActivity(),
                 R.id.imageViewPlan,
                 43.319279,

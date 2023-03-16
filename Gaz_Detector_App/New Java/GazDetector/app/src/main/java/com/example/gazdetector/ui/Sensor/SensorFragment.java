@@ -9,9 +9,13 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +31,15 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SensorFragment extends Fragment {
+public class SensorFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private FragmentSensorBinding binding;
     private UsbManager mUsbManager;
@@ -43,6 +51,12 @@ public class SensorFragment extends Fragment {
     public TextView co2Concentration;
     private GraphView graph  = null;
 
+    public Spinner spinner;
+    private ArrayList<Double> smokeDP;
+    private ArrayList<Double> coDP;
+    private ArrayList<Double> lpgDP;
+    private String gazSelected = "Smoke";
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -52,15 +66,24 @@ public class SensorFragment extends Fragment {
         binding = FragmentSensorBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        ////////////////  INIT USB CONNECTION  ////////////////////
         mUsbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         getActivity().registerReceiver(broadcastReceiver, filter);
 
+        coDP = new ArrayList<Double>();
+        lpgDP = new ArrayList<Double>();
+        smokeDP = new ArrayList<Double>();
+        Log.d("","test");
 
+
+        spinner = root.findViewById(R.id.spGaz);
+        initSpinner();
+
+        startUsbConnecting();
         //final TextView textView = binding.textSlideshow;
         return root;
     }
@@ -89,7 +112,7 @@ public class SensorFragment extends Fragment {
 
                 mUsbManager.requestPermission(mDevice,intent);
                 keep.set(false);
-                Toast.makeText(getActivity(), "Connection Successful", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "Connection Successful", Toast.LENGTH_LONG).show();
 
             }else {
                 mConnection = null;
@@ -121,20 +144,49 @@ public class SensorFragment extends Fragment {
         mSerial.close();
     }
 
+    String data = new String();
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] arg0)
         {
             //Toast.makeText(MainActivity.this, "Callback Received"+arg0, Toast.LENGTH_SHORT).show();
             try {
-                String data = new String(arg0, "UTF-8");
-                if (data.length()>30){
-                    data = data.substring(0, 30);
+
+                if (data.length()>60){
+                    data = data.substring(0, 60);
                 }
-                data.concat("/n");
+
+                String received = new String(arg0, "UTF-8");
+                //Log.d("sensor", "receiveddata:  " + received + " contains ? " + (!received.contains("{") && !data.contains("{")));
+                if (!received.contains("{")){
+                    if (!data.contains("{")){
+                        return;
+                    }
+                } else {
+                    if (data.contains("{")){
+                        return;
+                    }
+                }
+                data = data.concat(received);
+
+                Log.d("sensor", "receiveddata:  " + data);
+                //TextView text = getActivity().findViewById(R.id.textView5);
+                //if (text != null) text.setText(data); ///////////////////////////////////////// DEBUG//////////////////
+
+                //Toast.makeText(getActivity(), "|" + data + "|", Toast.LENGTH_LONG).show();
+
+                if (data.contains("{") && data.contains("}")){
+                    parseData(data);
+                    handlePoints(gazSelected);
+                    data = "";
+                }
+
+                //data.concat("/n");
                 //receive_Data = getActivity().findViewById(R.id.tvReceive);
 
-                Toast.makeText(getActivity(), "read : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "read parsed : " + data, Toast.LENGTH_LONG).show();
+
+                //Toast.makeText(getActivity(), "read parsed : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
 
 
             } catch (UnsupportedEncodingException e) {
@@ -144,6 +196,42 @@ public class SensorFragment extends Fragment {
         }
 
     };
+    /*
+     * Receives a string, parse jsons and fill data tables
+     */
+    private void parseData(String data) {
+        //data = data.replace("}{", "}}{{");
+        //String Pattern = getString(R.string.patern);
+
+        //String[] jsons = data.split(Pattern) ;
+
+        try {
+            Log.d("sensor", "parseData:  " + data);
+            JSONObject json = new JSONObject(data);
+            Log.d("sensor", "parseData: smoke : " + json.getString("smoke") + " inf? " + (json.getString("smoke").equals("nan")  || json.getString("smoke").equals("inf")));
+            if (!json.getString("smoke").equals("nan")  && !json.getString("smoke").equals("inf")){
+                smokeDP.add(json.getDouble("smoke"));
+                Log.d("sensor", "added to smokeDP  " + smokeDP.get(0) + " is " + json.getDouble("smoke") );
+            }
+
+            if (!json.getString("CO").equals("nan")  && !json.getString("CO").equals("inf")){
+                coDP.add(json.getDouble("CO"));
+                Log.d("sensor", "added to coDP  " + coDP.get(0) );
+            }
+
+            if (json.getString("LPG").equals("nan") && json.getString("LPG").equals("inf")){
+                lpgDP.add(json.getDouble("LPG"));
+                Log.d("sensor", "added to lpgDP  " + lpgDP.get(0) );
+            }
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }/*
+        for (int i = 0; i<jsons.length; i++) {
+
+        }*/
+
+    }
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -188,25 +276,63 @@ public class SensorFragment extends Fragment {
 
             try {
                 mSerial.read(mCallback);
-                Toast.makeText(getActivity(), "Read : "+mSerial.read(mCallback), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "Read broadcast : "+mSerial.read(mCallback), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 Toast.makeText(getActivity(), "Exception in read:"+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
-            Toast.makeText(getActivity(), "Serial port connected", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Serial port connected", Toast.LENGTH_SHORT).show();
         }
     };
-
-    public void handleGraph(){
+/*
+ * create dataPoint list and updates the graph
+ */
+    public void handlePoints(String gaz){
+        if (smokeDP.size() == 0 && lpgDP.size() == 0 && coDP.size() == 0){
+            Log.d("sensor", "handlePoints: vide");
+            return ;
+        }
         graph = (GraphView) getActivity().findViewById(R.id.graphView);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>();
+        if (gaz.equals("Smoke")){
+            for (int i = 0; i<smokeDP.size(); i++){
+                series.appendData(new DataPoint(i, smokeDP.get(i) ), false, 15, false);
+            }
+        }
+        if (gaz.equals("CO")){
+            for (int i = 0; i<coDP.size(); i++){
+                series.appendData(new DataPoint(i, coDP.get(i) ), false, 15, false);
+            }
+        }
+        if (gaz.equals("LPG")){
+            for (int i = 0; i<lpgDP.size(); i++){
+                series.appendData(new DataPoint(i, lpgDP.get(i) ), false, 15, false);
+            }
+        }
+        Log.d("sensor", "handlePoints: " + smokeDP.get(0));
+
+
         //graph.setTitle("My Graph View");
         graph.addSeries(series);
+    }
+
+    private void initSpinner(){
+        String[] gazNames = {"Smoke", "LPG", "CO"};
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, gazNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition(position).toString();
+        gazSelected = text;
+        handlePoints(text);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

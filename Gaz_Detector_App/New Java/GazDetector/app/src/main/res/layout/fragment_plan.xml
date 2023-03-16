@@ -47,15 +47,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.113" />
 
-    <ImageView
+
+
+    <com.ortiz.touchview.TouchImageView
         android:id="@+id/imageViewPlan"
-        android:layout_width="388dp"
-        android:layout_height="178dp"
-        android:src="@drawable/imviewplan"
-        app:layout_constraintBottom_toBottomOf="@+id/textView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/imviewplan"/>
 
     <ImageView
         android:id="@+id/imageViewMarker"

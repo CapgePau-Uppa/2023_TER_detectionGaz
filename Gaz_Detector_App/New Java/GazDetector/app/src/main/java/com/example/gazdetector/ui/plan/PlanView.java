@@ -28,6 +28,7 @@ public class PlanView extends Fragment {
     private static final int PERMISSION_FINE_LOCATION = 99;
     private FragmentPlanBinding binding;
     private Location location;
+    private com.ortiz.touchview.TouchImageView imageViewPlan;
 
 
     @Override
@@ -37,6 +38,8 @@ public class PlanView extends Fragment {
 
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        imageViewPlan = getActivity().findViewById(R.id.imageViewPlan);
 
         updateGPS();
         return root;

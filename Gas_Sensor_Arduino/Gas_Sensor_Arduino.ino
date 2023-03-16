@@ -1,6 +1,6 @@
 #include <MQ2.h>
 
-int analog_IN = D0; // This is our input pin (IO2)
+int analog_IN = 2; // This is our input pin (IO2)
 MQ2 mq2(analog_IN);
 
 void setup()
@@ -25,11 +25,6 @@ void loop()
   Serial.print(",\"CO\":");
   Serial.print(COLvl);
   Serial.print("}");
-
-  if (smokeLvl > 0.03)
-  {
-    Serial.println("Seuil dépassé : CO2 détecté");
-  }
 
   delay(1000); // wait for a second
 }

@@ -9,7 +9,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,21 +26,24 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-public class PlanView extends Fragment {
+public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
     private FragmentPlanBinding binding;
     private Location location;
 
+    public Spinner spinner;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         //HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+
+        spinner = root.findViewById(R.id.spPlan);
+        initSpinner();
         updateGPS();
         return root;
     }
@@ -46,6 +52,14 @@ public class PlanView extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void initSpinner(){
+        String[] planNames = {"UPPA", "CapGemini"};
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
     }
 
     public void setLocation(Location location) {
@@ -119,4 +133,16 @@ public class PlanView extends Fragment {
         }
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition(position).toString();
+        if (text.equals("UPPA")){
+
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }

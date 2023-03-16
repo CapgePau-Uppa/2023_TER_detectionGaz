@@ -1,11 +1,6 @@
 package com.example.gazdetector;
 
 import android.Manifest;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -30,17 +25,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.gazdetector.databinding.ActivityMain2Binding;
 import com.felhr.usbserial.UsbSerialDevice;
-import com.felhr.usbserial.UsbSerialInterface;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main2Activity extends AppCompatActivity {
 
@@ -93,6 +83,7 @@ public class Main2Activity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        /*
         mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
         IntentFilter filter = new IntentFilter();
@@ -100,7 +91,7 @@ public class Main2Activity extends AppCompatActivity {
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         registerReceiver(broadcastReceiver, filter);
-
+        */
         View v = null;
 
         /*v.findViewById(R.id.btnClean).setOnClickListener(new View.OnClickListener() {
@@ -172,6 +163,7 @@ public class Main2Activity extends AppCompatActivity {
         receive_Data.setText("");
     }
 */
+    /*
     private void startUsbConnecting(){
         HashMap<String, UsbDevice> usbDevices = mUsbManager.getDeviceList();
         if (usbDevices.isEmpty()){
@@ -184,8 +176,8 @@ public class Main2Activity extends AppCompatActivity {
             int deviceVendorId = mDevice.getVendorId();
             //Toast.makeText(Main2Activity.this, "vendorId" + deviceVendorId , Toast.LENGTH_LONG).show();
 
-            if (true /*deviceVendorId == 6790*/ ){
-                //Toast.makeText(Main2Activity.this, "test1", Toast.LENGTH_LONG).show();
+            if (true deviceVendorId == 6790 ){
+                Toast.makeText(Main2Activity.this, "test1", Toast.LENGTH_LONG).show();
                 PendingIntent intent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION),PendingIntent.FLAG_MUTABLE);
 
                 mUsbManager.requestPermission(mDevice,intent);
@@ -202,8 +194,8 @@ public class Main2Activity extends AppCompatActivity {
                 return;
             }
         });
-    }
-
+    }*/
+/*
     private void sendData(String input){
         if (mSerial == null){
             return;
@@ -211,8 +203,8 @@ public class Main2Activity extends AppCompatActivity {
         mSerial.write(input.getBytes());
 
         Toast.makeText(Main2Activity.this, "Sending : " + input.getBytes() , Toast.LENGTH_LONG).show();
-    }
-
+    }*/
+/*
     private void disconnect(){
         if (mSerial == null){
             Toast.makeText(Main2Activity.this, "Port is null" , Toast.LENGTH_LONG).show();
@@ -220,8 +212,8 @@ public class Main2Activity extends AppCompatActivity {
         }
         Toast.makeText(Main2Activity.this, "Disconnection" , Toast.LENGTH_LONG).show();
         mSerial.close();
-    }
-
+    }*/
+/*
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] arg0)
@@ -233,10 +225,10 @@ public class Main2Activity extends AppCompatActivity {
                     data = data.substring(0, 30);
                 }
                 data.concat("/n");
-                /*
-                receive_Data = findViewById(R.id.tvReceive);*/
 
-                //Toast.makeText(MainActivity.this, "read : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
+                receive_Data = findViewById(R.id.tvReceive);
+
+                Toast.makeText(MainActivity.this, "read : " + mSerial.read(mCallback), Toast.LENGTH_LONG).show();
                 String finalData = data;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -251,6 +243,8 @@ public class Main2Activity extends AppCompatActivity {
         }
 
     };
+    */
+    /*
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -305,7 +299,7 @@ public class Main2Activity extends AppCompatActivity {
         };
 
 
-    };
+    };*/
 
     private void updateGPS(){
         //get permission from user
@@ -316,7 +310,7 @@ public class Main2Activity extends AppCompatActivity {
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
-                    updateUIValues(location);
+                    //updateUIValues(location);
                 }
             });
         }

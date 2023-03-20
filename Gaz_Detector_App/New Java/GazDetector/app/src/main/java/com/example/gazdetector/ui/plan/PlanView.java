@@ -31,6 +31,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private static final int PERMISSION_FINE_LOCATION = 99;
     private FragmentPlanBinding binding;
     private Location location;
+    private com.ortiz.touchview.TouchImageView imageViewPlan;
 
     public Spinner spinner;
 
@@ -40,6 +41,8 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         //HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        imageViewPlan = getActivity().findViewById(R.id.imageViewPlan);
 
 
         spinner = root.findViewById(R.id.spPlan);

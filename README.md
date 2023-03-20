@@ -30,7 +30,7 @@ Required:
 - Click on Tools > Manage Libraries. The arduino software is looking for libraries and it may slow down. 
 - Write MQ2 in the search bar. 
 - Install the MQUnifiedsensor library.
-- Download the MQ2 library by pasting the following link in your browser : ```https://github.com/labay11/MQ-2-sensor-library/archive/refs/heads/master.zip```
+- Click [here](https://github.com/labay11/MQ-2-sensor-library/archive/refs/heads/master.zip) to download the MQ2 library
 - Click on Sketch > Include Library > Add .ZIP Library... and look for the file you downloaded (it should be in the Download folder). Click on it and click on Open.
 
 #### Step 3: Connect the sensor and the card

@@ -14,10 +14,10 @@ void setup()
 void loop()
 {
 
-  // float *values = mq2.read(false);
-  float smokeLvl = mq2.readSmoke();
-  float LPGLvl = mq2.readLPG();
-  float COLvl = mq2.readCO();
+  float *values = mq2.read(false);
+  float smokeLvl = mq2.readSmoke()*1000;
+  float LPGLvl = mq2.readLPG()*1000;
+  float COLvl = mq2.readCO()*1000;
   Serial.print("{\"smoke\":");
   Serial.print(smokeLvl);
   Serial.print(",\"LPG\":");

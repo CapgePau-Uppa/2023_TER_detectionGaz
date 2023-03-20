@@ -292,6 +292,9 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
             Log.d("sensor", "handlePoints: vide");
             return ;
         }
+        if (null == getActivity().findViewById(R.id.graphView)) {
+            return;
+        }
         graph = (GraphView) getActivity().findViewById(R.id.graphView);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>();
         if (gaz.equals("Smoke")){

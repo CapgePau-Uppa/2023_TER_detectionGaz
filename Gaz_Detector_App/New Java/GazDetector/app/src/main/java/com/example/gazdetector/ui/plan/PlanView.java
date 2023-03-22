@@ -1,18 +1,22 @@
 package com.example.gazdetector.ui.plan;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +36,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private FragmentPlanBinding binding;
     private Location location;
     private com.ortiz.touchview.TouchImageView imageViewPlan;
+    private TextView posTextView;
 
     public Spinner spinner;
 
@@ -42,7 +47,17 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        imageViewPlan = getActivity().findViewById(R.id.imageViewPlan);
+        imageViewPlan = root.findViewById(R.id.imageViewPlan);
+        posTextView = root.findViewById(R.id.posTextView);
+
+        imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener () {
+            @Override
+            public void onMove() {
+
+                posTextView.setText(imageViewPlan.getZoomedRect().toString());
+                //Log.d("Samuel_Plan","J'ai touché");
+            }
+        });
 
 
         spinner = root.findViewById(R.id.spPlan);

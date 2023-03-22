@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/nav_tab">
+
+    <fragment
+        android:id="@+id/nav_tab"
+        android:name="com.example.gazdetector.ui.tableau_de_bord.TableauDeBord"
+        android:label="@string/menu_tableau_bord"
+        tools:layout="@layout/fragment_tableau_de_bord" />
+
+    <fragment
+        android:id="@+id/nav_plan"
+        android:name="com.example.gazdetector.ui.plan.PlanView"
+        android:label="@string/menu_plan"
+        tools:layout="@layout/fragment_plan" />
+
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="com.example.gazdetector.ui.Sensor.SensorFragment"
+        android:label="@string/menu_capteur"
+        tools:layout="@layout/fragment_sensor" />
+</navigation>

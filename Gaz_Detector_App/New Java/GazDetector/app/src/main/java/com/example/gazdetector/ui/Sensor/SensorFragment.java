@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -147,8 +148,7 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     String data = new String();
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
-        public void onReceivedData(byte[] arg0)
-        {
+        public void onReceivedData(byte[] arg0) {
             //Toast.makeText(MainActivity.this, "Callback Received"+arg0, Toast.LENGTH_SHORT).show();
             try {
 
@@ -219,7 +219,7 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
                 Log.d("sensor", "added to coDP  " + coDP.get(0) );
             }
 
-            if (json.getString("LPG").equals("nan") && json.getString("LPG").equals("inf")){
+            if (!json.getString("LPG").equals("nan") && !json.getString("LPG").equals("inf")){
                 lpgDP.add(json.getDouble("LPG"));
                 Log.d("sensor", "added to lpgDP  " + lpgDP.get(0) );
             }
@@ -297,26 +297,39 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
         }
         graph = (GraphView) getActivity().findViewById(R.id.graphView);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>();
+        LineGraphSeries<DataPoint> threshold = new LineGraphSeries<DataPoint>();
+        threshold.setColor(Color.RED);
+
+        float thresholdNumber = 0;
         if (gaz.equals("Smoke")){
             for (int i = 0; i<smokeDP.size(); i++){
-                series.appendData(new DataPoint(i, smokeDP.get(i) ), false, 15, false);
+                series.appendData(new DataPoint(i, smokeDP.get(i) ), false, 150, false);
             }
+            thresholdNumber = 5000;
         }
         if (gaz.equals("CO")){
             for (int i = 0; i<coDP.size(); i++){
-                series.appendData(new DataPoint(i, coDP.get(i) ), false, 15, false);
+                series.appendData(new DataPoint(i, coDP.get(i) ), true, 150, false);
             }
+            thresholdNumber = 50;
         }
         if (gaz.equals("LPG")){
             for (int i = 0; i<lpgDP.size(); i++){
-                series.appendData(new DataPoint(i, lpgDP.get(i) ), false, 15, false);
+                series.appendData(new DataPoint(i, lpgDP.get(i) ), true, 150, false);
             }
+            thresholdNumber = 1000;
         }
         Log.d("sensor", "handlePoints: " + smokeDP.get(0));
 
 
+        threshold.appendData(new DataPoint(0, thresholdNumber),false, 2,false);
+        threshold.appendData(new DataPoint(smokeDP.size()-1, thresholdNumber),false, 2,false);
         //graph.setTitle("My Graph View");
+
+        graph.removeAllSeries();
+        graph.clearSecondScale();
         graph.addSeries(series);
+        graph.addSeries(threshold);
     }
 
     private void initSpinner(){
@@ -331,7 +344,13 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String text = parent.getItemAtPosition(position).toString();
         gazSelected = text;
-        handlePoints(text);
+
+        if (!(graph == null)){
+            graph.removeAllSeries();
+            graph.clearSecondScale();
+
+        }
+        //handlePoints(text);
     }
 
     @Override

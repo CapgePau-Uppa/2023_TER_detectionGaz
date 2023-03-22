@@ -10,4 +10,7 @@
     <string name="menu_plan">Plan</string>
     <string name="menu_capteur">Capteur</string>
     <string name="patern">/}\{/g</string>
+    <string name="nominale">Nominale</string>
+    <string name="hazard_lvl">Niveau de Danger :</string>
+    <string name="plan_position">Position sur le plan</string>
 </resources>

@@ -1,10 +1,12 @@
 package com.arangarcia.gazdetector.ui.alert;
 
+import android.graphics.PointF;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -80,6 +82,14 @@ public class AlertFragment extends Fragment {
                 //Log.d("Samuel_Plan","J'ai touché");
             }
         });
+
+        /*imageViewPlan.setOnTouchCoordinatesListener(new com.ortiz.touchview.TouchImageView.OnTouchCoordinatesListener(){
+            @Override
+            public void onTouchCoordinate(View v, MotionEvent motionEvent, PointF point){
+                String str = (String) posTextView.getText();
+                posTextView.setText(str + " et la coordonnée est " + point.toString());
+            }
+        });*/
 
         return inflater.inflate(R.layout.fragment_alert, container, false);
     }

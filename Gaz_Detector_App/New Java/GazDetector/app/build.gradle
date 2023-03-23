@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.gazdetector'
+    namespace 'com.arangarcia.gazdetector'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.gazdetector"
+        applicationId "com.arangarcia.gazdetector"
         minSdk 24
         targetSdk 33
         versionCode 1

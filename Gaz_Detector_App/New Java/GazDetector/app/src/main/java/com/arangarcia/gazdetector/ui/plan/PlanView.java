@@ -1,16 +1,13 @@
-package com.example.gazdetector.ui.plan;
+package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,8 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.gazdetector.R;
-import com.example.gazdetector.databinding.FragmentPlanBinding;
+import com.arangarcia.gazdetector.R;
+import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -116,7 +113,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         double longTopLeft = -0.363534,latTopLeft = 43.319279 ;
         double longBottomRight = -0.362978,latBottomRight = 43.319093;
 
-        com.example.gazdetector.ui.plan.Plan plan = new com.example.gazdetector.ui.plan.Plan(
+        com.arangarcia.gazdetector.ui.plan.Plan plan = new com.arangarcia.gazdetector.ui.plan.Plan(
                 getActivity(),
                 R.id.imageViewPlan,
                 43.319279,

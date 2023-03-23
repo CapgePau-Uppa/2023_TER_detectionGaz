@@ -2,17 +2,16 @@ package com.arangarcia.gazdetector.ui.alert;
 
 import android.graphics.PointF;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.gazdetector.R;
-import com.example.gazdetector.databinding.FragmentPlanBinding;
+import androidx.fragment.app.Fragment;
+
+import com.arangarcia.gazdetector.R;
+import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
 
 /**
  * A simple {@link Fragment} subclass.

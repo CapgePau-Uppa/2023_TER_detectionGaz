@@ -1,4 +1,4 @@
-package com.example.gazdetector.ui.Sensor;
+package com.arangarcia.gazdetector.ui.Sensor;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

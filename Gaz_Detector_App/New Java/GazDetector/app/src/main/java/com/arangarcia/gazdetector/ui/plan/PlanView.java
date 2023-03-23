@@ -3,6 +3,7 @@ package com.arangarcia.gazdetector.ui.plan;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;

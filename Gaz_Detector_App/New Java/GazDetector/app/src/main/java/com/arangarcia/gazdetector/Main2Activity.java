@@ -1,4 +1,4 @@
-package com.example.gazdetector;
+package com.arangarcia.gazdetector;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -23,7 +23,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.gazdetector.databinding.ActivityMain2Binding;
+import com.arangarcia.gazdetector.databinding.ActivityMain2Binding;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;

@@ -6,12 +6,12 @@
     <string name="action_settings">Settings</string>
 
 
-    <string name="menu_tableau_bord">Tableau de Bord</string>
-    <string name="menu_plan">Plan</string>
-    <string name="menu_capteur">Capteur</string>
+    <string name="menu_tableau_bord">Dashboard</string>
+    <string name="menu_plan">Map</string>
+    <string name="menu_capteur">Sensor</string>
     <string name="patern">/}\{/g</string>
-    <string name="nominale">Nominale</string>
-    <string name="hazard_lvl">Niveau de Danger :</string>
+    <string name="nominale">Nominative</string>
+    <string name="hazard_lvl">Denger Level :</string>
     <string name="plan_position">Position sur le plan</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

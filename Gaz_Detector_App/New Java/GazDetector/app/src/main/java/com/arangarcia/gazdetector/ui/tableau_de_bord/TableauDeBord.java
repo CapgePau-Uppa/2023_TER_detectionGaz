@@ -1,4 +1,4 @@
-package com.example.gazdetector.ui.tableau_de_bord;
+package com.arangarcia.gazdetector.ui.tableau_de_bord;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.gazdetector.databinding.FragmentTableauDeBordBinding;
+import com.arangarcia.gazdetector.databinding.FragmentTableauDeBordBinding;
 
 public class TableauDeBord extends Fragment {
 

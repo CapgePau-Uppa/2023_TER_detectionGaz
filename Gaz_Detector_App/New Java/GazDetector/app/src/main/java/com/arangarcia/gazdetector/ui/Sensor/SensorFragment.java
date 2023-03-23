@@ -1,4 +1,4 @@
-package com.example.gazdetector.ui.Sensor;
+package com.arangarcia.gazdetector.ui.Sensor;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -16,16 +16,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.gazdetector.R;
-import com.example.gazdetector.databinding.FragmentSensorBinding;
+import com.arangarcia.gazdetector.R;
+import com.arangarcia.gazdetector.databinding.FragmentSensorBinding;
+import com.arangarcia.gazdetector.ui.alert.AlertFragment;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.jjoe64.graphview.GraphView;
@@ -57,15 +60,39 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     private ArrayList<Double> coDP;
     private ArrayList<Double> lpgDP;
     private String gazSelected = "Smoke";
-
+    private Button btnReset;
+    private Button btnAlert;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        SensorViewModel SensorViewModel =
-                new ViewModelProvider(this).get(SensorViewModel.class);
+        com.arangarcia.gazdetector.ui.Sensor.SensorViewModel SensorViewModel =  new ViewModelProvider(this).get(com.arangarcia.gazdetector.ui.Sensor.SensorViewModel.class);
 
         binding = FragmentSensorBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        //////////////// INIT BUTTONS ////////////////////////////
+
+        btnAlert = (Button) root.findViewById(R.id.btnAlert);
+        btnReset = (Button) root.findViewById(R.id.btnReset);
+
+        btnAlert.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                // Launching new Activity on selecting single List Item
+                Fragment fragment = null;
+                fragment = new AlertFragment();
+                replaceFragment(fragment);
+            }
+        });
+        btnReset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                smokeDP = new ArrayList<Double>();
+                coDP = new ArrayList<Double>();
+                lpgDP = new ArrayList<Double>();
+            }
+        });
+
 
         ////////////////  INIT USB CONNECTION  ////////////////////
         mUsbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
@@ -78,7 +105,6 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
         coDP = new ArrayList<Double>();
         lpgDP = new ArrayList<Double>();
         smokeDP = new ArrayList<Double>();
-        Log.d("","test");
 
 
         spinner = root.findViewById(R.id.spGaz);
@@ -93,6 +119,13 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void replaceFragment(Fragment someFragment) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.nav_host_fragment_content_main2, someFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void startUsbConnecting(){
@@ -169,13 +202,14 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
                 }
                 data = data.concat(received);
 
-                Log.d("sensor", "receiveddata:  " + data);
                 //TextView text = getActivity().findViewById(R.id.textView5);
                 //if (text != null) text.setText(data); ///////////////////////////////////////// DEBUG//////////////////
 
                 //Toast.makeText(getActivity(), "|" + data + "|", Toast.LENGTH_LONG).show();
 
                 if (data.contains("{") && data.contains("}")){
+
+                    Log.d("sensor", "receiveddata:  " + data);
                     parseData(data);
                     handlePoints(gazSelected);
                     data = "";
@@ -206,22 +240,17 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
         //String[] jsons = data.split(Pattern) ;
 
         try {
-            Log.d("sensor", "parseData:  " + data);
             JSONObject json = new JSONObject(data);
-            Log.d("sensor", "parseData: smoke : " + json.getString("smoke") + " inf? " + (json.getString("smoke").equals("nan")  || json.getString("smoke").equals("inf")));
             if (!json.getString("smoke").equals("nan")  && !json.getString("smoke").equals("inf")){
                 smokeDP.add(json.getDouble("smoke"));
-                Log.d("sensor", "added to smokeDP  " + smokeDP.get(0) + " is " + json.getDouble("smoke") );
             }
 
             if (!json.getString("CO").equals("nan")  && !json.getString("CO").equals("inf")){
                 coDP.add(json.getDouble("CO"));
-                Log.d("sensor", "added to coDP  " + coDP.get(0) );
             }
 
             if (!json.getString("LPG").equals("nan") && !json.getString("LPG").equals("inf")){
                 lpgDP.add(json.getDouble("LPG"));
-                Log.d("sensor", "added to lpgDP  " + lpgDP.get(0) );
             }
 
         } catch (JSONException e) {
@@ -319,7 +348,6 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
             }
             thresholdNumber = 1000;
         }
-        Log.d("sensor", "handlePoints: " + smokeDP.get(0));
 
 
         threshold.appendData(new DataPoint(0, thresholdNumber),false, 2,false);

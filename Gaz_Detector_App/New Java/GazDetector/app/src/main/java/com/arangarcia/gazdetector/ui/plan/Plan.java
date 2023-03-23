@@ -1,4 +1,4 @@
-package com.example.gazdetector.ui.plan;
+package com.arangarcia.gazdetector.ui.plan;
 
 import android.content.Context;
 import android.graphics.Bitmap;

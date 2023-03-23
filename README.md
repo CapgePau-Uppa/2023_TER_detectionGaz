@@ -23,7 +23,7 @@ Required:
 - Click on File > Preferences
 - In the Additional Boards Manager URLs, write the following url : ```https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json```
 - Open Boards Manager from Tools > Board > Board Manager... and install *esp32* platform. You can write ```esp32``` in the search bar to find it.
-- You can know select your esp32 card in Tools > Board > ESP32 Arduino. This project has been made with ESP32-WROOM-DA Module. 
+- You can now select your esp32 card in Tools > Board > ESP32 Arduino. This project has been made with ESP32-WROOM-DA Module. 
 
 #### Step 2: MQ2 library
 

@@ -123,6 +123,7 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
 
     public void replaceFragment(Fragment someFragment) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.setReorderingAllowed(true);
         transaction.replace(R.id.nav_host_fragment_content_main2, someFragment);
         transaction.addToBackStack(null);
         transaction.commit();

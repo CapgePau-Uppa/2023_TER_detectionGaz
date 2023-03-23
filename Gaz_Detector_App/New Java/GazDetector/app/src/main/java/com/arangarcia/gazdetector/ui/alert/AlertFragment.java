@@ -2,87 +2,63 @@ package com.arangarcia.gazdetector.ui.alert;
 
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.arangarcia.gazdetector.R;
-import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
+import com.arangarcia.gazdetector.databinding.FragmentAlertBinding;
+//import com.ortiz.touchview.TouchImageView.OnTouchCoordinatesListener;
+import com.ortiz.touchview.TouchImageView.OnTouchImageViewListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AlertFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AlertFragment extends Fragment {
-    private com.ortiz.touchview.TouchImageView imageViewPlan;
-    private TextView posTextView;
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private com.ortiz.touchview.TouchImageView imageViewAlert;
+    private TextView posTextViewAlert;
 
     public AlertFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AlertFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AlertFragment newInstance(String param1, String param2) {
-        AlertFragment fragment = new AlertFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FragmentPlanBinding binding = FragmentPlanBinding.inflate(inflater, container, false);
+        FragmentAlertBinding binding = FragmentAlertBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        imageViewPlan = root.findViewById(R.id.imageViewPlan);
-        posTextView = root.findViewById(R.id.posTextView);
+        imageViewAlert = root.findViewById(R.id.imageViewAlert);
+        posTextViewAlert = root.findViewById(R.id.posTextViewAlert);
 
-        imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener () {
+        imageViewAlert.setOnTouchImageViewListener(new OnTouchImageViewListener () {
             @Override
             public void onMove() {
 
-                posTextView.setText(imageViewPlan.getZoomedRect().toString());
-                //Log.d("Samuel_Plan","J'ai touché");
+                PointF pt = imageViewAlert.getScrollPosition();
+                String str = imageViewAlert.getZoomedRect().toString() + pt.toString();
+
+                posTextViewAlert.setText(str);
+                Log.d("Samuel_Plan","J'ai touché");
             }
         });
 
-        /*imageViewPlan.setOnTouchCoordinatesListener(new com.ortiz.touchview.TouchImageView.OnTouchCoordinatesListener(){
+        imageViewAlert.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Float x = motionEvent.getX();
+                Float y = motionEvent.getY();
+
+                posTextViewAlert.setText("X: " + x.toString() + "; Y: " + y.toString());
+                return true;
+            }
+        });
+
+        /*imageViewPlan.setOnTouchCoordinatesListener(new OnTouchCoordinatesListener (){
             @Override
             public void onTouchCoordinate(View v, MotionEvent motionEvent, PointF point){
                 String str = (String) posTextView.getText();

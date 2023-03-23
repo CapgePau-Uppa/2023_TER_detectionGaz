@@ -48,7 +48,7 @@
         app:layout_constraintVertical_bias="0.075" />
 
     <TextView
-        android:id="@+id/posTextView"
+        android:id="@+id/posTextViewAlert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/plan_position"
@@ -60,22 +60,14 @@
         app:layout_constraintVertical_bias="0.075" />
 
     <com.ortiz.touchview.TouchImageView
-        android:id="@+id/imageViewPlan"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/imviewplan"/>
-
-    <ImageView
-        android:id="@+id/imageViewMarker"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:src="@drawable/baseline_location_on"
-        app:layout_constraintBottom_toBottomOf="@+id/imageViewPlan"
-        app:layout_constraintEnd_toEndOf="@+id/imageViewPlan"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="@+id/imageViewPlan"
-        app:layout_constraintTop_toTopOf="@+id/imageViewPlan"
-        app:layout_constraintVertical_bias="0.467" />
+        android:id="@+id/imageViewAlert"
+        android:layout_width="381dp"
+        android:layout_height="295dp"
+        android:src="@drawable/imviewplan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/spPlan"

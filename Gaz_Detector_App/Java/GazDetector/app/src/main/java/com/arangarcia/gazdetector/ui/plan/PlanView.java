@@ -2,12 +2,15 @@ package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -53,7 +56,25 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             public void onMove() {
 
                 posTextView.setText(imageViewPlan.getZoomedRect().toString());
-                //Log.d("Samuel_Plan","J'ai touché");
+                Log.d("Samuel_Plan","J'ai touché");
+            }
+        });
+
+        imageViewPlan.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Float x = motionEvent.getX();
+                Float y = motionEvent.getY();
+
+                posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
+                Log.d("Samuel_Plan","X: " + x.toString() + "; Y: " + y.toString());
+
+                ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
+                markerView.setX(x);
+                markerView.setY(y + 635);
+                markerView.setVisibility(View.VISIBLE);
+
+                return true;
             }
         });
 

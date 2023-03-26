@@ -65,13 +65,23 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 Float x = motionEvent.getX();
                 Float y = motionEvent.getY();
+                Float xView = imageViewPlan.getX();
+                Float yView = imageViewPlan.getY();
+                Integer wView = imageViewPlan.getWidth();
+                Integer hView = imageViewPlan.getHeight();
+
+                Log.d("Samuel_Plan","wView: " + wView + "; hView: " + hView);
+
+                if(x<0 || y<0 || x > wView || y > hView){
+                    return false;
+                }
 
                 posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
                 Log.d("Samuel_Plan","X: " + x.toString() + "; Y: " + y.toString());
 
                 ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
-                markerView.setX(x);
-                markerView.setY(y + 635);
+                markerView.setX(x + xView);
+                markerView.setY(y + yView);
                 markerView.setVisibility(View.VISIBLE);
 
                 return true;

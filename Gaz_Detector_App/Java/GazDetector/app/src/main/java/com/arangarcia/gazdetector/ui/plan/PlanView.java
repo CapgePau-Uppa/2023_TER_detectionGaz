@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,12 +52,20 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         imageViewPlan = root.findViewById(R.id.imageViewPlan);
         posTextView = root.findViewById(R.id.posTextView);
 
+        Drawable img = imageViewPlan.getDrawable();
+        Log.d("Samuel_Plan","width: "+ ((Integer) img.getMinimumWidth()).toString());
+        Log.d("Samuel_Plan","height: "+ ((Integer) img.getMinimumHeight()).toString());
+
+        //value for imviewplan.png
+        imageViewPlan.setMinZoom(2);
+        imageViewPlan.setZoom(2);
+
         imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener () {
             @Override
             public void onMove() {
 
                 posTextView.setText(imageViewPlan.getZoomedRect().toString());
-                Log.d("Samuel_Plan","J'ai touché");
+                Log.d("Samuel_Plan","J'ai touché" + imageViewPlan.getCurrentZoom());
             }
         });
 

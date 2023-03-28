@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,6 +31,10 @@ import androidx.fragment.app.Fragment;
 import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -41,6 +47,9 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private TextView posTextView;
 
     public Spinner spinner;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallBack;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -52,20 +61,55 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         imageViewPlan = root.findViewById(R.id.imageViewPlan);
         posTextView = root.findViewById(R.id.posTextView);
 
+        locationCallBack = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                location = locationResult.getLastLocation();
+                updateGPS();
+                posTextView.setText(location.toString());
+                Log.d("Samuel_Plan", location.toString());
+            }
+        };
+        //try to get position every t seconds
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Samuel_Plan","Maybe it doesn't work here");
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            //return ;
+        }
+
+        HandlerThread handlerThread = new HandlerThread("MyHandlerThread");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, looper);
+        //end of the try
+
         Drawable img = imageViewPlan.getDrawable();
-        Log.d("Samuel_Plan","width: "+ ((Integer) img.getMinimumWidth()).toString());
-        Log.d("Samuel_Plan","height: "+ ((Integer) img.getMinimumHeight()).toString());
+        Log.d("Samuel_Plan", "width: " + ((Integer) img.getMinimumWidth()).toString());
+        Log.d("Samuel_Plan", "height: " + ((Integer) img.getMinimumHeight()).toString());
 
         //value for imviewplan.png
         imageViewPlan.setMinZoom(2);
         imageViewPlan.setZoom(2);
 
-        imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener () {
+        imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener() {
             @Override
             public void onMove() {
 
-                posTextView.setText(imageViewPlan.getZoomedRect().toString());
-                Log.d("Samuel_Plan","J'ai touché" + imageViewPlan.getCurrentZoom());
+                //posTextView.setText(imageViewPlan.getZoomedRect().toString());
+                Log.d("Samuel_Plan", "J'ai touché" + imageViewPlan.getCurrentZoom());
+
             }
         });
 
@@ -79,14 +123,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 Integer wView = imageViewPlan.getWidth();
                 Integer hView = imageViewPlan.getHeight();
 
-                Log.d("Samuel_Plan","wView: " + wView + "; hView: " + hView);
+                Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
 
-                if(x<0 || y<0 || x > wView || y > hView){
+                if (x < 0 || y < 0 || x > wView || y > hView) {
                     return false;
                 }
 
-                posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
-                Log.d("Samuel_Plan","X: " + x.toString() + "; Y: " + y.toString());
+                //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
+                Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
 
                 ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
                 markerView.setX(x + xView);
@@ -110,7 +154,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         binding = null;
     }
 
-    private void initSpinner(){
+    private void initSpinner() {
         String[] planNames = {"UPPA", "CapGemini"};
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -126,12 +170,21 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         return location;
     }
 
-    private void updateGPS(){
+    public void displayLocation() {
+        if(location == null){
+            posTextView.setText("no position");
+        }
+        else {
+            posTextView.setText(this.location.toString());
+        }
+    }
+
+    private void updateGPS() {
         //get permission from user
         //get the current location from the fused client
-        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
@@ -139,12 +192,13 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                     updatePosition(location);
                 }
             });
-        }
-        else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
             }
         }
+
+        displayLocation();
     }
 
 

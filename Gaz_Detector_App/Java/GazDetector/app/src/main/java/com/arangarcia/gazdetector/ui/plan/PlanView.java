@@ -2,9 +2,7 @@ package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
@@ -115,7 +113,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener( this );
     }
 
     public void setLocation(Location location) {
@@ -146,8 +144,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             }
         }
     }
-
-
 
     public void updatePosition(Location location){
         double longTopLeft = -0.363534,latTopLeft = 43.319279 ;

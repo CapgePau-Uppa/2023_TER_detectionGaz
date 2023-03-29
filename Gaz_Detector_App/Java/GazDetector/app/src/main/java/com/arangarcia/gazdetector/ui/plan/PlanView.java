@@ -2,15 +2,11 @@ package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,24 +27,28 @@ import androidx.fragment.app.Fragment;
 import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
+    public static final int DEFAULT_INTERVAL_MILLIS = 30000;
+    public static final int MIN_UPDATE_INTERVAL_MILLIS = 5000;
     private FragmentPlanBinding binding;
     private Location location;
     private com.ortiz.touchview.TouchImageView imageViewPlan;
     private TextView posTextView;
 
     public Spinner spinner;
-    private LocationRequest locationRequest;
+    //Config file for settings related to FusedLocationProviderClient
+    private LocationRequest.Builder locationRequestBuilder;
     private LocationCallback locationCallBack;
+    //Google's API for location services
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
@@ -61,38 +61,25 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         imageViewPlan = root.findViewById(R.id.imageViewPlan);
         posTextView = root.findViewById(R.id.posTextView);
 
-        locationCallBack = new LocationCallback() {
+        //init the locationRequest
+        locationRequestBuilder = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, DEFAULT_INTERVAL_MILLIS);
+        locationRequestBuilder.setMinUpdateIntervalMillis(MIN_UPDATE_INTERVAL_MILLIS);
 
+        locationCallBack = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
 
-                location = locationResult.getLastLocation();
                 updateGPS();
-                posTextView.setText(location.toString());
+                location = locationResult.getLastLocation();
+                posTextView.setText("Lat: " + location.getLatitude() + "; Long: " + location.getLongitude());
                 Log.d("Samuel_Plan", location.toString());
             }
         };
-        //try to get position every t seconds
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
-        if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d("Samuel_Plan","Maybe it doesn't work here");
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            //return ;
-        }
-
-        HandlerThread handlerThread = new HandlerThread("MyHandlerThread");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, looper);
+        startLocationUpdates();
         //end of the try
 
         Drawable img = imageViewPlan.getDrawable();
@@ -108,7 +95,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             public void onMove() {
 
                 //posTextView.setText(imageViewPlan.getZoomedRect().toString());
-                Log.d("Samuel_Plan", "J'ai touché" + imageViewPlan.getCurrentZoom());
+                //Log.d("Samuel_Plan", "J'ai touché" + imageViewPlan.getCurrentZoom());
 
             }
         });
@@ -123,14 +110,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 Integer wView = imageViewPlan.getWidth();
                 Integer hView = imageViewPlan.getHeight();
 
-                Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
+                //Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
 
                 if (x < 0 || y < 0 || x > wView || y > hView) {
                     return false;
                 }
 
                 //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
-                Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
+                //Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
 
                 ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
                 markerView.setX(x + xView);
@@ -162,6 +149,26 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         spinner.setOnItemSelectedListener(this);
     }
 
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Samuel_Plan", "We're missing the persmissions");
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequestBuilder.build(), locationCallBack, null);
+        updateGPS();
+    }
+
+    private void stopLocationUpdates(){
+        fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+    }
+
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -173,9 +180,11 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     public void displayLocation() {
         if(location == null){
             posTextView.setText("no position");
+            Log.d("Samuel_Plan","Location not found");
         }
         else {
             posTextView.setText(this.location.toString());
+            Log.d("Samuel_Plan","Location found");
         }
     }
 

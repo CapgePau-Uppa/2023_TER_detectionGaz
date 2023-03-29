@@ -146,7 +146,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener( this );
     }
 
     private void startLocationUpdates() {
@@ -209,8 +209,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         displayLocation();
     }
-
-
 
     public void updatePosition(Location location){
         double longTopLeft = -0.363534,latTopLeft = 43.319279 ;

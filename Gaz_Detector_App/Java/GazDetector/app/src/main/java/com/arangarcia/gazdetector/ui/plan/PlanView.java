@@ -34,6 +34,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.sql.Array;
+import java.util.ArrayList;
+
 public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
@@ -80,7 +83,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
         startLocationUpdates();
-        //end of the try
 
         Drawable img = imageViewPlan.getDrawable();
         Log.d("Samuel_Plan", "width: " + ((Integer) img.getMinimumWidth()).toString());
@@ -167,6 +169,41 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
     private void stopLocationUpdates(){
         fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+    }
+
+    private boolean isOnPlan(){
+        ArrayList<Double> topLeft = new ArrayList<>(2);
+        ArrayList<Double> topRight = new ArrayList<>(2);
+        ArrayList<Double> botLeft = new ArrayList<>(2);
+        ArrayList<Double> botRight = new ArrayList<>(2);
+
+        //1 for Newton, 2 for UPPA
+        int chooseCoord = 1;
+
+        if(chooseCoord == 1){
+
+            //for Newton
+            topLeft.add(43.3193045);
+            topLeft.add(-0.3637196);
+            topRight.add(43.3192893);
+            topRight.add(-0.3633025);
+            botLeft.add(43.3190271);
+            botLeft.add(-0.3636341);
+            botRight.add(43.3190975);
+            botRight.add(-0.3629909);
+        }else{
+            //for uppa
+            topLeft.add(43.3162199);
+            topLeft.add(-0.364762);
+            topRight.add(43.316268);
+            topRight.add(-0.3620184);
+            botLeft.add(43.3137179);
+            botLeft.add(-0.3650232);
+            botRight.add(43.3130416);
+            botRight.add(-0.3619866);
+        }
+
+        return false;
     }
 
     public void setLocation(Location location) {

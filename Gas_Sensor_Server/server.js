@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const mongoClient = require('mongodb').MongoClient;
 
-const url = "mongodb://localhost:27017"
+const url = "mongodb://127.0.0.1:27017"
 
 app.use(express.json());
 
@@ -16,6 +16,7 @@ mongoClient.connect(url, (err, db) => {
 
         app.post('/addAlert', (req, res) => {
 
+            console.log("add alert received:");
             const newAlert = {
                 longitude: req.body.longitude,
                 latitude: req.body.latitude,
@@ -29,6 +30,7 @@ mongoClient.connect(url, (err, db) => {
 
         app.post('/getAlerts', (req, res) => {
 
+            console.log("get alert received:");
             collection.find().sort({'id': 1}).toArray(function(err, result) {
                 if(result == [] || result == ''){
                  res.status(404).send();
@@ -57,8 +59,10 @@ mongoClient.connect(url, (err, db) => {
         });
 
         
-        app.listen(3000, () => {
-            console.log("listening on port 3000");
-        })
+       
     }
+})
+
+app.listen(3000, () => {
+    console.log("listening on port 3000");
 })

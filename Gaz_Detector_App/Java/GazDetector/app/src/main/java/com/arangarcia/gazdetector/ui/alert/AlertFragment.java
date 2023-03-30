@@ -1,10 +1,8 @@
 package com.arangarcia.gazdetector.ui.alert;
 
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,7 +20,6 @@ import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.RetrofitInterface;
 import com.arangarcia.gazdetector.databinding.FragmentAlertBinding;
 import com.arangarcia.gazdetector.sendResult;
-import com.ortiz.touchview.TouchImageView.OnTouchImageViewListener;
 
 import java.util.HashMap;
 
@@ -39,7 +36,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     public Spinner spinner;
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://192.168.1.51:3000";
+    private String BASE_URL = "http://10.65.13.129:3000";
     private Double latitude;
     private Double longitude;
 
@@ -47,6 +44,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         // Required empty public constructor
     }
 
+    //@SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -55,6 +53,17 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         View root = binding.getRoot();
         imageViewAlert = root.findViewById(R.id.imageViewAlert);
         posTextViewAlert = root.findViewById(R.id.posTextViewAlert);
+
+
+        btnConfirmAlert = (Button) root.findViewById(R.id.btnConfirmAlert);
+        btnConfirmAlert.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                Toast.makeText(getActivity(), "confirmed", Toast.LENGTH_SHORT).show();
+                Log.d("backEnd", "on click confirm");
+                handleConfirmAlert();
+            }
+        });
 
         // Initialisation of the server connection
         /*
@@ -65,7 +74,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
         retrofitInterface = retrofit.create(RetrofitInterface.class);
         */
-        imageViewAlert.setOnTouchImageViewListener(new OnTouchImageViewListener () {
+        /*imageViewAlert.setOnTouchImageViewListener(new OnTouchImageViewListener () {
             @Override
             public void onMove() {
 
@@ -76,7 +85,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 Log.d("Samuel_Plan","J'ai touché");
             }
         });
+        */
 
+      /*
         imageViewAlert.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -87,6 +98,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 return true;
             }
         });
+    */
 
         /*imageViewPlan.setOnTouchCoordinatesListener(new OnTouchCoordinatesListener (){
             @Override
@@ -95,16 +107,10 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 posTextView.setText(str + " et la coordonnée est " + point.toString());
             }
         });*/
-        spinner = root.findViewById(R.id.spDanger);
-        initSpinner();
-        
-        btnConfirmAlert = (Button) root.findViewById(R.id.btnConfirmAlert);
-        btnConfirmAlert.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
-                handleConfirmAlert();                
-            }
-        });
+        /*
+        spinner = root.findViewById(R.id.spAlert);
+        initSpinner();*/
+
 
         return inflater.inflate(R.layout.fragment_alert, container, false);
     }
@@ -122,6 +128,8 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
     private void handleConfirmAlert() {
         HashMap<String, String> map = new HashMap<>();
+
+        Log.d("backEnd", "start handleConfirm");
 
         map.put("latitude",latitude.toString());
         map.put("longitude",longitude.toString());

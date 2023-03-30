@@ -34,7 +34,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.sql.Array;
 import java.util.ArrayList;
 
 public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
@@ -131,7 +130,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         });
 
 
-        spinner = root.findViewById(R.id.spPlan);
+        spinner = root.findViewById(R.id.spAlert);
         initSpinner();
         updateGPS();
         return root;

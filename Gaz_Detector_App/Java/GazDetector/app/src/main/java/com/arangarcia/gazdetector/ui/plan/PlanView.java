@@ -41,8 +41,8 @@ import java.util.ArrayList;
 public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
-    public static final int DEFAULT_INTERVAL_MILLIS = 10000;
-    public static final int MIN_UPDATE_INTERVAL_MILLIS = 2000;
+    public static final int DEFAULT_INTERVAL_MILLIS = 1000;
+    public static final int MIN_UPDATE_INTERVAL_MILLIS = 200;
     private FragmentPlanBinding binding;
     private Location location;
     private com.ortiz.touchview.TouchImageView imageViewPlan;
@@ -179,7 +179,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayList<Double> botRight = new ArrayList<>(2);
 
         //1 for Newton, 2 for UPPA
-        int chooseCoord = 2;
+        int chooseCoord = 1;
 
         if(chooseCoord == 1){
 
@@ -213,6 +213,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     }
 
     public ArrayList<Double> posOnPlan(){
+        Log.d("Samuel_Plan", String.valueOf(location.getAccuracy()));
         ArrayList<Double> pos = new ArrayList<>(2);
 
         ArrayList<Double> topLeft = new ArrayList<>(2);
@@ -227,23 +228,49 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         RectF rect = imageViewPlan.getZoomedRect();
 
-        topLeft.add(43.3162199);
-        topLeft.add(-0.364762);
-        topRight.add(43.316268);
-        topRight.add(-0.3620184);
-        botLeft.add(43.3137179);
-        botLeft.add(-0.3650232);
-        botRight.add(43.3130416);
-        botRight.add(-0.3619866);
+        topLeft.add(43.3193045);
+        topLeft.add(-0.3637196);
+        topRight.add(43.3192893);
+        topRight.add(-0.3633025);
+        botLeft.add(43.3190271);
+        botLeft.add(-0.3636341);
+        botRight.add(43.3190975);
+        botRight.add(-0.3629909);
 
-        topLeftP.add(topLeft.get(0)+(rect.left * (topRight.get(0)-topLeft.get(0))));
-        topLeftP.add(topLeft.get(1)+(rect.top * (topLeft.get(1)-botLeft.get(1))));
-        topRightP.add(topRight.get(0)-(rect.right * (topRight.get(0)-topLeft.get(0))));
-        topRightP.add(topRight.get(1)+(rect.top * (topRight.get(1)-botRight.get(1))));
-        botLeftP.add(43.3137179);
-        botLeftP.add(-0.3650232);
-        botRightP.add(43.3130416);
-        botRightP.add(-0.3619866);
+        topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
+        topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
+        topRightP.add(topRight.get(0)-(rect.top * (topRight.get(0)-botRight.get(0))));
+        topRightP.add(topRight.get(1)-((1-rect.right) * (topRight.get(1)-topLeft.get(1))));
+        botLeftP.add(botLeft.get(0)+((1-rect.bottom) * (topLeft.get(0)-botLeft.get(0))));
+        botLeftP.add(botLeft.get(1)+(rect.left * (botRight.get(1)-botLeft.get(1))));
+        botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
+        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));
+
+        double lat = location.getLatitude();
+        double longi = location.getLongitude();
+
+        if(lat < botLeftP.get(0)){
+            Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
+        }
+        if(lat > topRightP.get(0)){
+            Log.d("Samuel_Plan","cond2 isnot ok: " + lat + ">" + topRightP.get(0));
+        }
+        if(longi < botLeftP.get(1)){
+            Log.d("Samuel_Plan","cond3 isnot ok: " + longi + "<" + botLeftP.get(1));
+        }
+        if(longi > topRightP.get(1)){
+            Log.d("Samuel_Plan","cond4 isnot ok: " + longi + ">" + topRightP.get(1));
+        }
+
+        if(lat >= botLeftP.get(0) && lat <= topRightP.get(0) &&
+                longi >= botLeftP.get(1) && longi <= topRightP.get(1)){
+            Log.d("Samuel_Plan","It's on it!");
+            pos.add(((lat-botLeftP.get(0))/(topRightP.get(0)-botLeftP.get(0)))*imageViewPlan.getWidth());
+            pos.add(((longi-botLeftP.get(1))/(topRightP.get(1)-botLeftP.get(1)))*imageViewPlan.getHeight());
+            //Toast.makeText(getActivity(), "La position est : X: " + pos.get(1) + "; Y: "+pos.get(0),Toast.LENGTH_SHORT).show();
+            return pos;
+        }
+        Log.d("Samuel_Plan","It isn't on it!");
 
         pos.add(0.0);
         pos.add(0.0);
@@ -306,11 +333,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         // Vérifiez si la position actuelle est sur le plan
         if (isOnPlan()) {
 
-            Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
             // Obtenez les coordonnées sur le plan
 
-            int x = (int) (imageViewPlan.getX() + imageViewPlan.getWidth()/2);
-            int y = (int) (imageViewPlan.getY() + imageViewPlan.getHeight()/2);
+            ArrayList<Double> pos = posOnPlan();
+
+
+            int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
+            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
 
             //plan.getCoordinatesOnPlan(location.getLatitude(), location.getLongitude());
             // Afficher les coordonnées sur le plan

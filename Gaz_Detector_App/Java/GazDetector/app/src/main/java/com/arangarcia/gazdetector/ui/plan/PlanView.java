@@ -3,6 +3,7 @@ package com.arangarcia.gazdetector.ui.plan;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
@@ -39,8 +40,8 @@ import java.util.ArrayList;
 public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
-    public static final int DEFAULT_INTERVAL_MILLIS = 30000;
-    public static final int MIN_UPDATE_INTERVAL_MILLIS = 5000;
+    public static final int DEFAULT_INTERVAL_MILLIS = 1000;
+    public static final int MIN_UPDATE_INTERVAL_MILLIS = 200;
     private FragmentPlanBinding binding;
     private Location location;
     private com.ortiz.touchview.TouchImageView imageViewPlan;
@@ -202,7 +203,77 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             botRight.add(-0.3619866);
         }
 
+        if(location.getLatitude() > botLeft.get(0) && location.getLatitude() < topRight.get(0) &&
+            location.getLongitude() > botLeft.get(1) && location.getLongitude() < topRight.get(1)){
+            return true;
+        }
+
         return false;
+    }
+
+    public ArrayList<Double> posOnPlan(){
+        Log.d("Samuel_Plan", String.valueOf(location.getAccuracy()));
+        ArrayList<Double> pos = new ArrayList<>(2);
+
+        ArrayList<Double> topLeft = new ArrayList<>(2);
+        ArrayList<Double> topRight = new ArrayList<>(2);
+        ArrayList<Double> botLeft = new ArrayList<>(2);
+        ArrayList<Double> botRight = new ArrayList<>(2);
+
+        ArrayList<Double> topLeftP = new ArrayList<>(2);
+        ArrayList<Double> topRightP = new ArrayList<>(2);
+        ArrayList<Double> botLeftP = new ArrayList<>(2);
+        ArrayList<Double> botRightP = new ArrayList<>(2);
+
+        RectF rect = imageViewPlan.getZoomedRect();
+
+        topLeft.add(43.3193045);
+        topLeft.add(-0.3637196);
+        topRight.add(43.3192893);
+        topRight.add(-0.3633025);
+        botLeft.add(43.3190271);
+        botLeft.add(-0.3636341);
+        botRight.add(43.3190975);
+        botRight.add(-0.3629909);
+
+        topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
+        topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
+        topRightP.add(topRight.get(0)-(rect.top * (topRight.get(0)-botRight.get(0))));
+        topRightP.add(topRight.get(1)-((1-rect.right) * (topRight.get(1)-topLeft.get(1))));
+        botLeftP.add(botLeft.get(0)+((1-rect.bottom) * (topLeft.get(0)-botLeft.get(0))));
+        botLeftP.add(botLeft.get(1)+(rect.left * (botRight.get(1)-botLeft.get(1))));
+        botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
+        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));
+
+        double lat = location.getLatitude();
+        double longi = location.getLongitude();
+
+        if(lat < botLeftP.get(0)){
+            Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
+        }
+        if(lat > topRightP.get(0)){
+            Log.d("Samuel_Plan","cond2 isnot ok: " + lat + ">" + topRightP.get(0));
+        }
+        if(longi < botLeftP.get(1)){
+            Log.d("Samuel_Plan","cond3 isnot ok: " + longi + "<" + botLeftP.get(1));
+        }
+        if(longi > topRightP.get(1)){
+            Log.d("Samuel_Plan","cond4 isnot ok: " + longi + ">" + topRightP.get(1));
+        }
+
+        if(lat >= botLeftP.get(0) && lat <= topRightP.get(0) &&
+                longi >= botLeftP.get(1) && longi <= topRightP.get(1)){
+            Log.d("Samuel_Plan","It's on it!");
+            pos.add(((lat-botLeftP.get(0))/(topRightP.get(0)-botLeftP.get(0)))*imageViewPlan.getWidth());
+            pos.add(((longi-botLeftP.get(1))/(topRightP.get(1)-botLeftP.get(1)))*imageViewPlan.getHeight());
+            //Toast.makeText(getActivity(), "La position est : X: " + pos.get(1) + "; Y: "+pos.get(0),Toast.LENGTH_SHORT).show();
+            return pos;
+        }
+        Log.d("Samuel_Plan","It isn't on it!");
+
+        pos.add(0.0);
+        pos.add(0.0);
+        return pos;
     }
 
     public void setLocation(Location location) {
@@ -259,26 +330,27 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 -0.362978
         );/*43., -0.3748915662826034,44.313623593101546, -0.3524817214585103*/ /*UPPA*/
         // Vérifiez si la position actuelle est sur le plan
-        if (plan.isOnPlan(location.getLatitude(), location.getLongitude())) {
+        if (isOnPlan()) {
 
-            Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
             // Obtenez les coordonnées sur le plan
-            ImageView imageView = (ImageView) getView().findViewById(R.id.imageViewPlan);
 
-            int x = (int) (((location.getLongitude() - longTopLeft) / (longBottomRight - longTopLeft)) * imageView.getWidth() + imageView.getX());
-            int y = (int) (((latBottomRight - location.getLatitude()) / (latBottomRight - latTopLeft)) * imageView.getHeight() + imageView.getY());
-            Point point =  new Point(x, y);
+            ArrayList<Double> pos = posOnPlan();
+
+
+            int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
+            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
 
             //plan.getCoordinatesOnPlan(location.getLatitude(), location.getLongitude());
             // Afficher les coordonnées sur le plan
             //ImageView imageView = (ImageView) getView().findViewById(R.id.imageViewPlan);
             //imageView.setImageBitmap(plan.getImage());
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
-            markerView.setX(point.x);
-            markerView.setY(point.y);
+            markerView.setX(x);
+            markerView.setY(y);
             markerView.setVisibility(View.VISIBLE);
         } else {
-            Toast.makeText(getActivity(), "La position actualise n'est pas sur le plan", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "La position actualise n'est pas sur le plan", Toast.LENGTH_SHORT).show();
 
             // La position actuelle n'est pas sur le plan
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);

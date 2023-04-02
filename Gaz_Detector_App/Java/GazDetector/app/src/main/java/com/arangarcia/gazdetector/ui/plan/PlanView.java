@@ -83,14 +83,15 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
         startLocationUpdates();
-
+        /* code for zooming
         Drawable img = imageViewPlan.getDrawable();
         Log.d("Samuel_Plan", "width: " + ((Integer) img.getMinimumWidth()).toString());
         Log.d("Samuel_Plan", "height: " + ((Integer) img.getMinimumHeight()).toString());
 
+
         //value for imviewplan.png
         imageViewPlan.setMinZoom(2);
-        imageViewPlan.setZoom(2);
+        imageViewPlan.setZoom(2);*/
 
         imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener() {
             @Override
@@ -334,12 +335,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
             //Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
             // Obtenez les coordonnées sur le plan
-
+            /* code for puting the markerView in the right place
             ArrayList<Double> pos = posOnPlan();
 
 
             int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
-            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
+            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());*/
+            int x = 0;
+            int y = 0;
 
             //plan.getCoordinatesOnPlan(location.getLatitude(), location.getLongitude());
             // Afficher les coordonnées sur le plan

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -53,6 +54,11 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private LocationCallback locationCallBack;
     //Google's API for location services
     private FusedLocationProviderClient fusedLocationProviderClient;
+    //delta modified with the test buttons
+    private double deltaLat;
+    private double deltaLong;
+    private Button btnLat;
+    private Button btnLong;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -131,10 +137,32 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             }
         });
 
+        //init the test deltas
+        deltaLong = 0;
+        deltaLat = 0;
+
+        btnLat = (Button) root.findViewById(R.id.btnLat);
+        btnLong = (Button) root.findViewById(R.id.btnLong);
+
+        btnLat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deltaLat+=0.0001;
+            }
+        });
+
+        btnLong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deltaLong+=0.0001;
+            }
+        });
+
 
         spinner = root.findViewById(R.id.spAlert);
         initSpinner();
         updateGPS();
+
         return root;
     }
 
@@ -179,7 +207,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayList<Double> botRight = new ArrayList<>(2);
 
         //1 for Newton, 2 for UPPA
-        int chooseCoord = 1;
+        int chooseCoord = 2;
 
         if(chooseCoord == 1){
 
@@ -209,6 +237,8 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             return true;
         }
 
+        Log.d("Samuel_Plan","I'm not here");
+
         return false;
     }
 
@@ -228,14 +258,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         RectF rect = imageViewPlan.getZoomedRect();
 
-        topLeft.add(43.3193045);
-        topLeft.add(-0.3637196);
-        topRight.add(43.3192893);
-        topRight.add(-0.3633025);
-        botLeft.add(43.3190271);
-        botLeft.add(-0.3636341);
-        botRight.add(43.3190975);
-        botRight.add(-0.3629909);/*
+        topLeft.add(43.3162199);
+        topLeft.add(-0.364762);
+        topRight.add(43.316268);
+        topRight.add(-0.3620184);
+        botLeft.add(43.3137179);
+        botLeft.add(-0.3650232);
+        botRight.add(43.3130416);
+        botRight.add(-0.3619866);/*
 
         topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
         topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
@@ -246,8 +276,8 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
         botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));*/
 
-        double lat = location.getLatitude();
-        double longi = location.getLongitude();
+        double lat = location.getLatitude() + deltaLat;
+        double longi = location.getLongitude() + deltaLong;
 
        /* if(lat < botLeftP.get(0)){
             Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
@@ -265,8 +295,11 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         if(lat >= botLeft.get(0) && lat <= topRight.get(0) &&
                 longi >= botLeft.get(1) && longi <= topRight.get(1)){
             Log.d("Samuel_Plan","It's on it!");
-            pos.add(((lat-botLeft.get(0))/(topRight.get(0)-botLeft.get(0)))*imageViewPlan.getHeight());
-            pos.add(((longi-botLeft.get(1))/(topRight.get(1)-botLeft.get(1)))*imageViewPlan.getWidth());
+            pos.add(imageViewPlan.getHeight() - ((lat - botLeft.get(0)) / (topRight.get(0) - botLeft.get(0))) * imageViewPlan.getHeight());
+            pos.add(((longi - botLeft.get(1)) / (topRight.get(1) - botLeft.get(1))) * imageViewPlan.getWidth());
+
+            //pos.set(0, (double) (imageViewPlan.getHeight()/8));
+            //pos.set(1,(double) (imageViewPlan.getWidth()/8));
             //Toast.makeText(getActivity(), "La position est : X: " + pos.get(1) + "; Y: "+pos.get(0),Toast.LENGTH_SHORT).show();
             return pos;
         }
@@ -332,17 +365,17 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         );/*43., -0.3748915662826034,44.313623593101546, -0.3524817214585103*/ /*UPPA*/
         // Vérifiez si la position actuelle est sur le plan
         if (isOnPlan()) {
+            Log.d("Samuel_Plan","I'm on the plan!");
 
             //Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
             // Obtenez les coordonnées sur le plan
-            /* code for puting the markerView in the right place
+            /* code for puting the markerView in the right place*/
             ArrayList<Double> pos = posOnPlan();
 
 
             int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
-            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());*/
-            int x = 0;
-            int y = 0;
+            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
+
 
             //plan.getCoordinatesOnPlan(location.getLatitude(), location.getLongitude());
             // Afficher les coordonnées sur le plan

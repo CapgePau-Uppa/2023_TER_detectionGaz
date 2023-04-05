@@ -235,7 +235,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         botLeft.add(43.3190271);
         botLeft.add(-0.3636341);
         botRight.add(43.3190975);
-        botRight.add(-0.3629909);
+        botRight.add(-0.3629909);/*
 
         topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
         topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
@@ -244,12 +244,12 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         botLeftP.add(botLeft.get(0)+((1-rect.bottom) * (topLeft.get(0)-botLeft.get(0))));
         botLeftP.add(botLeft.get(1)+(rect.left * (botRight.get(1)-botLeft.get(1))));
         botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
-        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));
+        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));*/
 
         double lat = location.getLatitude();
         double longi = location.getLongitude();
 
-        if(lat < botLeftP.get(0)){
+       /* if(lat < botLeftP.get(0)){
             Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
         }
         if(lat > topRightP.get(0)){
@@ -260,13 +260,13 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         }
         if(longi > topRightP.get(1)){
             Log.d("Samuel_Plan","cond4 isnot ok: " + longi + ">" + topRightP.get(1));
-        }
+        }*/
 
-        if(lat >= botLeftP.get(0) && lat <= topRightP.get(0) &&
-                longi >= botLeftP.get(1) && longi <= topRightP.get(1)){
+        if(lat >= botLeft.get(0) && lat <= topRight.get(0) &&
+                longi >= botLeft.get(1) && longi <= topRight.get(1)){
             Log.d("Samuel_Plan","It's on it!");
-            pos.add(((lat-botLeftP.get(0))/(topRightP.get(0)-botLeftP.get(0)))*imageViewPlan.getWidth());
-            pos.add(((longi-botLeftP.get(1))/(topRightP.get(1)-botLeftP.get(1)))*imageViewPlan.getHeight());
+            pos.add(((lat-botLeft.get(0))/(topRight.get(0)-botLeft.get(0)))*imageViewPlan.getHeight());
+            pos.add(((longi-botLeft.get(1))/(topRight.get(1)-botLeft.get(1)))*imageViewPlan.getWidth());
             //Toast.makeText(getActivity(), "La position est : X: " + pos.get(1) + "; Y: "+pos.get(0),Toast.LENGTH_SHORT).show();
             return pos;
         }

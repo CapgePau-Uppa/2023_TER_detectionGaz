@@ -8,9 +8,9 @@ import retrofit2.http.POST;
 
 public interface RetrofitInterface {
 
-    @POST("/addAlert")
+    @POST("arangarcia/addAlert")
     Call<sendResult> executeAddAlert(@Body HashMap<String, String> map);
 
-    @POST("/getAlerts")
+    @POST("arangarcia/getAlert")
     Call<receiveResult> executeGetAlerts(@Body HashMap<String, String> map);
 }

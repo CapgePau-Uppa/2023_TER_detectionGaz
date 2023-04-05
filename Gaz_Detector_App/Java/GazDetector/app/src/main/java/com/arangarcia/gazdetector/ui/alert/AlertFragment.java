@@ -36,7 +36,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     public Spinner spinner;
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://10.65.13.129:3000";
+    private String BASE_URL = "http://192.168.1.1:3000";
     private Double latitude;
     private Double longitude;
 
@@ -131,8 +131,8 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
         Log.d("backEnd", "start handleConfirm");
 
-        map.put("latitude",latitude.toString());
-        map.put("longitude",longitude.toString());
+        map.put("latitude","latitude.toString()");
+        map.put("longitude","longitude.toString()");
         map.put("danger", "todo");
 
         Call<sendResult> call = retrofitInterface.executeAddAlert(map);

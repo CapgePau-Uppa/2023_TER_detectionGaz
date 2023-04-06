@@ -27,8 +27,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.arangarcia.gazdetector.R;
+import com.arangarcia.gazdetector.RetrofitInterface;
 import com.arangarcia.gazdetector.databinding.FragmentSensorBinding;
-import com.arangarcia.gazdetector.ui.alert.AlertFragment;
+import com.arangarcia.gazdetector.sendResult;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.jjoe64.graphview.GraphView;
@@ -43,6 +44,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class SensorFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private FragmentSensorBinding binding;
@@ -54,6 +61,9 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
 
     public TextView co2Concentration;
     private GraphView graph  = null;
+    private Retrofit retrofit;
+    private RetrofitInterface retrofitInterface;
+    private String BASE_URL = "http://192.168.103.30:3000";
 
     public Spinner spinner;
     private ArrayList<Double> smokeDP;
@@ -79,9 +89,11 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
             public void onClick(View v)
             {
                 // Launching new Activity on selecting single List Item
-                Fragment fragment = null;
-                fragment = new AlertFragment();
-                replaceFragment(fragment);
+
+                handleConfirmAlert();
+                //Fragment fragment = null;
+                //fragment = new AlertFragment();
+                //replaceFragment(fragment);
             }
         });
         btnReset.setOnClickListener(new View.OnClickListener() {
@@ -385,5 +397,43 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    //test
+    private void handleConfirmAlert() {
+        HashMap<String, String> map = new HashMap<>();
+
+        Log.d("backEnd", "start handleConfirm");
+
+        map.put("latitude","latitude.toString()");
+        map.put("longitude","longitude.toString()");
+        map.put("danger", "todo");
+
+        // Initialisation of the server connection
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+        retrofitInterface = retrofit.create(RetrofitInterface.class);
+        Call<sendResult> call = retrofitInterface.executeAddAlert(map);
+
+        call.enqueue(new Callback<sendResult>() {
+            @Override
+            public void onResponse(Call<sendResult> call, Response<sendResult> response) {
+
+                if (response.code() == 400) {
+                    Toast.makeText(getActivity(), "Alert already added", Toast.LENGTH_SHORT).show();
+                } else if (response.code() == 200) {
+                    Toast.makeText(getActivity(), "Alert successfully added", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<sendResult> call, Throwable t) {
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

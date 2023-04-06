@@ -9,11 +9,7 @@
         android:name="com.arangarcia.gazdetector.ui.tableau_de_bord.TableauDeBord"
         android:label="@string/menu_tableau_bord"
         tools:layout="@layout/fragment_tableau_de_bord" />
-    <fragment
-        android:id="@+id/nav_alert"
-        android:name="com.arangarcia.gazdetector.ui.alert.AlertFragment"
-        android:label="@string/menu_tableau_bord"
-        tools:layout="@layout/fragment_alert" />
+
 
     <fragment
         android:id="@+id/nav_plan"
@@ -26,4 +22,9 @@
         android:name="com.arangarcia.gazdetector.ui.Sensor.SensorFragment"
         android:label="@string/menu_capteur"
         tools:layout="@layout/fragment_sensor" />
+    <fragment
+        android:id="@+id/nav_alert"
+        android:name="com.arangarcia.gazdetector.ui.alert.AlertFragment"
+        android:label="@string/menu_alert"
+        tools:layout="@layout/fragment_alert" />
 </navigation>

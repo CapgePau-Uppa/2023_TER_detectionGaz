@@ -207,19 +207,19 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayList<Double> botRight = new ArrayList<>(2);
 
         //1 for Newton, 2 for UPPA
-        int chooseCoord = 2;
+        int chooseCoord = 1;
 
         if(chooseCoord == 1){
 
             //for Newton
-            topLeft.add(43.3193045);
-            topLeft.add(-0.3637196);
-            topRight.add(43.3192893);
-            topRight.add(-0.3633025);
-            botLeft.add(43.3190271);
-            botLeft.add(-0.3636341);
-            botRight.add(43.3190975);
-            botRight.add(-0.3629909);
+            topLeft.add(43.3193276422);
+            topLeft.add(-0.3636125675);
+            topRight.add(43.3193276422);
+            topRight.add(-0.3629366508);
+            botLeft.add(43.3190690788);
+            botLeft.add(-0.3636125675);
+            botRight.add(43.3190690788);
+            botRight.add(-0.3629366508);
         }
         if(chooseCoord == 2){
 
@@ -260,14 +260,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         RectF rect = imageViewPlan.getZoomedRect();
 
-        topLeft.add(43.3162199);
-        topLeft.add(-0.364762);
-        topRight.add(43.316268);
-        topRight.add(-0.3620184);
-        botLeft.add(43.3137179);
-        botLeft.add(-0.3650232);
-        botRight.add(43.3130416);
-        botRight.add(-0.3619866);/*
+        topLeft.add(43.3193276422);
+        topLeft.add(-0.3636125675);
+        topRight.add(43.3193276422);
+        topRight.add(-0.3629366508);
+        botLeft.add(43.3190690788);
+        botLeft.add(-0.3636125675);
+        botRight.add(43.3190690788);
+        botRight.add(-0.3629366508);
 
         topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
         topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
@@ -276,12 +276,12 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         botLeftP.add(botLeft.get(0)+((1-rect.bottom) * (topLeft.get(0)-botLeft.get(0))));
         botLeftP.add(botLeft.get(1)+(rect.left * (botRight.get(1)-botLeft.get(1))));
         botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
-        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));*/
+        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));
 
         double lat = location.getLatitude() + deltaLat;
         double longi = location.getLongitude() + deltaLong;
 
-       /* if(lat < botLeftP.get(0)){
+       if(lat < botLeftP.get(0)){
             Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
         }
         if(lat > topRightP.get(0)){
@@ -292,7 +292,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         }
         if(longi > topRightP.get(1)){
             Log.d("Samuel_Plan","cond4 isnot ok: " + longi + ">" + topRightP.get(1));
-        }*/
+        }
 
         if(lat >= botLeftP.get(0) && lat <= topRightP.get(0) &&
                 longi >= botLeftP.get(1) && longi <= topRightP.get(1)){

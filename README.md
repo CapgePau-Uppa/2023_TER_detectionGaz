@@ -1,3 +1,5 @@
+# 2023_TER_detectionGaz
+
 - [2023\_TER\_detectionGaz](#2023_ter_detectiongaz)
   - [Arduino installation](#arduino-installation)
       - [Step 1: ESP32 WROOM](#step-1-esp32-wroom)
@@ -5,9 +7,15 @@
       - [Step 3: Connect the sensor and the card](#step-3-connect-the-sensor-and-the-card)
       - [Step 4: Copy the code](#step-4-copy-the-code)
       - [Step 5: Upload](#step-5-upload)
+  - [Set up the server](#set-up-the-server)
+      - [Step 1: node.js installation](#step-1-nodejs-installation)
+      - [Step 2: express installation](#step-2-express-installation)
+      - [Step 3: mongodb database installation](#step-3-mongodb-database-installation)
+      - [Step 4: Run the server](#step-4-run-the-server)
+  - [Download the app](#download-the-app)
+      - [Configure](#configure)
+        - [Configure your IP](#configure-your-ip)
 
-
-# 2023_TER_detectionGaz
 
 ## Arduino installation
 
@@ -51,3 +59,31 @@ Use the 3 wires to connect:
 - Connect the Arduino cord to your computer where the Arduino Software is installed. **Caution**: if you didn't follow the **step 3** well, you may **damage** your sensor and your card.
 - Upload by clicking on Sketch > Upload
 - Once the code uploaded, click on Tools > Serial Monitor. The sensor needs time to heat, so the values might not be true at the beginning. You can press the EN button on your card to reboot the program.
+
+## Set up the server
+
+Required:
+- A computer or a server that will be running 24h/24
+
+#### Step 1: node.js installation 
+#### Step 2: express installation
+(handle requests)
+#### Step 3: mongodb database installation
+#### Step 4: Run the server
+
+
+
+## Download the app
+
+Required:
+- An android smartphone (the application does not work on a IOS smartphone)
+
+#### Configure
+
+- Open the config.json
+
+##### Configure your IP
+
+- Open the command prompt (you can find it if type it in the windows search bar)
+- Find your IPv4 by typing ```ipconfig```. In Wi-Fi card.
+- Replace "XXX.XXX.XXX.XXX" with your 

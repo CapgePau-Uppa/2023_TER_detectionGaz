@@ -6,17 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.RectF;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,6 +75,8 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     private String gazSelected = "Smoke";
     private Button btnReset;
     private Button btnAlert;
+    private com.ortiz.touchview.TouchImageView imageViewPlan;
+    ImageView markerView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -84,6 +89,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
         btnAlert = (Button) root.findViewById(R.id.btnAlert);
         btnReset = (Button) root.findViewById(R.id.btnReset);
+
+        imageViewPlan = root.findViewById(R.id.imageViewAlert);
+        markerView = (ImageView) root.findViewById(R.id.AlertMarker);
 
         btnAlert.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
@@ -99,9 +107,47 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         btnReset.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
-                smokeDP = new ArrayList<Double>();
-                coDP = new ArrayList<Double>();
-                lpgDP = new ArrayList<Double>();
+                Log.d("Samuel_Alert","On va prendre les coordonnées du marker");
+                float x = markerView.getX();
+                float y = markerView.getY();
+
+                Log.d("Samuel_Alert","X: " + x + "; Y: " + y);
+
+                Log.d("Samuel_Alert","Et on exécute la fonction qui donne la position gps");
+                ArrayList<Double> loc = posToLoc();
+                Log.d("Samuel_Alert","Voilà la localisation : (lat: " + loc.get(0) + "; long: " + loc.get(1) + ")");
+            }
+        });
+
+        //value for imviewplan.png
+        imageViewPlan.setMinZoom(2);
+        imageViewPlan.setZoom(2);
+
+        imageViewPlan.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Float x = motionEvent.getX();
+                Float y = motionEvent.getY();
+                Float xView = imageViewPlan.getX();
+                Float yView = imageViewPlan.getY();
+                Integer wView = imageViewPlan.getWidth();
+                Integer hView = imageViewPlan.getHeight();
+
+                //Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
+
+                if (x < 0 || y < 0 || x > wView || y > hView) {
+                    return false;
+                }
+
+                //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
+                //Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
+
+                //ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
+                markerView.setX(x + xView);
+                markerView.setY(y + yView);
+                markerView.setVisibility(View.VISIBLE);
+
+                return true;
             }
         });
 
@@ -119,10 +165,10 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         smokeDP = new ArrayList<Double>();
 
 
-        spinner = root.findViewById(R.id.spGaz);
+        spinner = root.findViewById(R.id.spAlert);
         initSpinner();
 
-        startUsbConnecting();
+        //startUsbConnecting();
         //final TextView textView = binding.textSlideshow;
         return root;
     }
@@ -374,11 +420,11 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     private void initSpinner(){
-        String[] gazNames = {"Smoke", "LPG", "CO"};
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, gazNames);
+        String[] planNames = {"UPPA", "CapGemini"};
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener( this );
     }
 
     @Override
@@ -435,5 +481,47 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public ArrayList<Double> posToLoc(){
+        ArrayList<Double> loc = new ArrayList<>(2);
+
+        ArrayList<Double> topLeft = new ArrayList<>(2);
+        ArrayList<Double> topRight = new ArrayList<>(2);
+        ArrayList<Double> botLeft = new ArrayList<>(2);
+        ArrayList<Double> botRight = new ArrayList<>(2);
+
+        ArrayList<Double> topLeftP = new ArrayList<>(2);
+        ArrayList<Double> topRightP = new ArrayList<>(2);
+        ArrayList<Double> botLeftP = new ArrayList<>(2);
+        ArrayList<Double> botRightP = new ArrayList<>(2);
+
+        RectF rect = imageViewPlan.getZoomedRect();
+
+        topLeft.add(43.3162199);
+        topLeft.add(-0.364762);
+        topRight.add(43.316268);
+        topRight.add(-0.3620184);
+        botLeft.add(43.3137179);
+        botLeft.add(-0.3650232);
+        botRight.add(43.3130416);
+        botRight.add(-0.3619866);
+
+        topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
+        topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));
+        topRightP.add(topRight.get(0)-(rect.top * (topRight.get(0)-botRight.get(0))));
+        topRightP.add(topRight.get(1)-((1-rect.right) * (topRight.get(1)-topLeft.get(1))));
+        botLeftP.add(botLeft.get(0)+((1-rect.bottom) * (topLeft.get(0)-botLeft.get(0))));
+        botLeftP.add(botLeft.get(1)+(rect.left * (botRight.get(1)-botLeft.get(1))));
+        botRightP.add(botRight.get(0)+((1-rect.bottom) * (topRight.get(0)-botRight.get(0))));
+        botRightP.add(botRight.get(1)-((1-rect.right) * (botRight.get(1)-botLeft.get(1))));
+
+        double y = markerView.getY() - imageViewPlan.getY();
+        double x = markerView.getX() - imageViewPlan.getX();
+
+        Log.d("Samuel_Plan","It's on it!");
+        loc.add(botLeftP.get(0) + ((imageViewPlan.getHeight() - y) / imageViewPlan.getHeight()) * (topRightP.get(0) - botLeftP.get(0)));
+        loc.add(botLeftP.get(1) + (x / imageViewPlan.getWidth()) * (topRightP.get(1) - botLeftP.get(1)));
+        return loc;
     }
 }

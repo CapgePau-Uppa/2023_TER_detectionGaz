@@ -2,7 +2,6 @@ package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -19,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -207,7 +205,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         ArrayList<Double> botRight = new ArrayList<>(2);
 
         //1 for Newton, 2 for UPPA
-        int chooseCoord = 1;
+        int chooseCoord = 2;
 
         if(chooseCoord == 1){
 
@@ -260,14 +258,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         RectF rect = imageViewPlan.getZoomedRect();
 
-        topLeft.add(43.3193276422);
-        topLeft.add(-0.3636125675);
-        topRight.add(43.3193276422);
-        topRight.add(-0.3629366508);
-        botLeft.add(43.3190690788);
-        botLeft.add(-0.3636125675);
-        botRight.add(43.3190690788);
-        botRight.add(-0.3629366508);
+        topLeft.add(43.3162199);
+        topLeft.add(-0.364762);
+        topRight.add(43.316268);
+        topRight.add(-0.3620184);
+        botLeft.add(43.3137179);
+        botLeft.add(-0.3650232);
+        botRight.add(43.3130416);
+        botRight.add(-0.3619866);
 
         topLeftP.add(topLeft.get(0)-(rect.top * (topLeft.get(0)-botLeft.get(0))));
         topLeftP.add(topLeft.get(1)+(rect.left * (topRight.get(1)-topLeft.get(1))));

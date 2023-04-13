@@ -69,6 +69,17 @@ Required:
 #### Step 2: express installation
 (handle requests)
 #### Step 3: mongodb database installation
+
+- install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+- Once it's installed, click on the msi file
+- A new Window is open. Click on Next.
+- Click on the checkbox to accept the Terms of Agreement then click on Next.
+- Click on Complete
+- Make sure "Install MongoDB as a Service" and "Run service as Network Service user" are selected. Leave "Service Name" field, "Data Directory" field ans "Log Directory" field to their default values. Click Next.
+- Make sure "Install MongoDB Compass" is selected. Click on Next.
+- Click on Install.
+- Once the installation is finished, check if it's insalled. The default directory is C:/Program Files/MongoDB/Server/bin. There should be the mongo.exe file.
+
 #### Step 4: Run the server
 
 

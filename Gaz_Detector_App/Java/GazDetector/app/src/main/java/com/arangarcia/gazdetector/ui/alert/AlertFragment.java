@@ -207,7 +207,10 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     private void handleConfirmAlert() {
         HashMap<String, String> map = new HashMap<>();
 
-        Log.d("backEnd", "start handleConfirm");
+        if (loc == null || loc.size() == 0){
+            Toast.makeText(getActivity(), "Please give a location.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         map.put("latitude",loc.get(0).toString());
         map.put("longitude",loc.get(1).toString());
@@ -226,7 +229,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         call.enqueue(new Callback<sendResult>() {
             @Override
             public void onResponse(Call<sendResult> call, Response<sendResult> response) {
-
+                if (getActivity().equals(null)){
+                    return;
+                }
                 if (response.code() == 400) {
                     Toast.makeText(getActivity(), "Alert already added", Toast.LENGTH_SHORT).show();
                 } else if (response.code() == 200) {
@@ -236,6 +241,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
             @Override
             public void onFailure(Call<sendResult> call, Throwable t) {
+                if (getActivity() == null){
+                    return;
+                }
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

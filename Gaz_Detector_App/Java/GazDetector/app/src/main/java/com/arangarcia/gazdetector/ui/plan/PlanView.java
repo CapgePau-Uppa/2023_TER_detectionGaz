@@ -233,7 +233,11 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
     private boolean isOnPlan(){
 
-
+        if(location == null){
+            posTextView.setText("no position");
+            Log.d("Samuel_Plan","Location not found"); // TODO -------------------------------------------------------------------
+            return false;
+        }
 
         if(location.getLatitude() > botLeft[0] && location.getLatitude() < topRight[0] &&
             location.getLongitude() > botLeft[1] && location.getLongitude() < topRight[1]){
@@ -317,6 +321,10 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     }
 
     private void updateGPS() {
+        if (getActivity().equals(null)){
+            return;
+        }
+
         //get permission from user
         //get the current location from the fused client
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());

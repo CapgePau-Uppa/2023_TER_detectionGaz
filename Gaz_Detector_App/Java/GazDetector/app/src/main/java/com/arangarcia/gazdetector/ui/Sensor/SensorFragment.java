@@ -64,7 +64,7 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
     private GraphView graph  = null;
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
-    private String BASE_URL = "http://192.168.103.30:3000";
+    private String BASE_URL = "http://192.168.185.30:3000";
 
     public Spinner spinner;
     private ArrayList<Double> smokeDP;
@@ -91,7 +91,7 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
             {
                 // Launching new Activity on selecting single List Item
 
-                handleConfirmAlert();
+
                 Fragment fragment = null;
                 fragment = new AlertFragment();
                 replaceFragment(fragment);

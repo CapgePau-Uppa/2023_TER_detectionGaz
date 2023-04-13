@@ -1,6 +1,8 @@
 package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -69,14 +72,15 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private Button btnLat;
     private Button btnLong;
 
-    // Coordinates of UPPA, Cap in commentary
-    private static Double[] topLeft = {43.3162199, -0.364762}; //{43.3193276422, -0.3636125675}
-    private static Double[] topRight = {43.316268, -0.3620184}; //{43.3193276422, -0.3629366508}
-    private static Double[] botLeft = {43.3137179, -0.3650232}; //{43.3190690788, -0.3636125675}
-    private static Double[] botRight = {43.3130416, -0.3619866}; // {43.3190690788, -0.3629366508}
+    // Coordinates of cap, UPPA in commentary
+    private static Double[] topLeft = /*{43.3162199, -0.364762}*/ {43.3193276422, -0.3636125675};
+    private static Double[] topRight = /*{43.316268, -0.3620184};*/ {43.3193276422, -0.3629366508};
+    private static Double[] botLeft = /*{43.3137179, -0.3650232};*/ {43.3190690788, -0.3636125675};
+    private static Double[] botRight = /*{43.3130416, -0.3619866};*/ {43.3190690788, -0.3629366508};
 
     private ImageView markerView;
     private ArrayList<ImageView> clonedMarkers;
+    private boolean alertShown;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -89,6 +93,9 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         imageViewPlan = root.findViewById(R.id.imageViewPlan);
         posTextView = root.findViewById(R.id.posTextView);
+
+        alertShown = false;
+        clonedMarkers = new ArrayList<>();
 
         //init the locationRequest
         locationRequestBuilder = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, DEFAULT_INTERVAL_MILLIS);
@@ -103,6 +110,9 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 location = locationResult.getLastLocation();
                 posTextView.setText("Lat: " + location.getLatitude() + "; Long: " + location.getLongitude());
                 Log.d("Samuel_Plan", location.toString());
+
+
+                getAlarms();
             }
         };
 
@@ -153,7 +163,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 markerView.setY(y + yView);
                 markerView.setVisibility(View.VISIBLE);
 
-                getAlarms();
 
                 return true;
             }
@@ -390,6 +399,12 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
     void getAlarms(){
 
+        ConstraintLayout parentLayout = getView().findViewById(R.id.plan_view_id);
+
+        for (int i = 0; i < clonedMarkers.size(); i++) {
+            parentLayout.removeView(clonedMarkers.get(i));
+
+        }
         HashMap<String, String> map = new HashMap<>();
 
 
@@ -415,22 +430,32 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                     ArrayList<alertPojo> alarms = response.body();
                     clonedMarkers = new ArrayList<>();
 
+                    ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
+
+                    Boolean isDangerous = false;
                     Log.d("getAlarms","size : " + alarms.size());
                     for (int i = 0; i < alarms.size(); i++) {
+                        Log.d("getAlarms","danger : " + alarms.get(i).getDanger());
+                        if(alarms.get(i).getDanger().equals("Urgent")) {
+                            isDangerous = true;
+
+                            Log.d("getAlarms","Confirmed");
+                        }
+
                         Log.d("getAlarms","body : " + alarms.get(i).getLatitude().toString());
                         clonedMarkers.add(new ImageView(markerView.getContext()));
                         clonedMarkers.get(i).setImageDrawable(markerView.getDrawable());
                         clonedMarkers.get(i).setLayoutParams(markerView.getLayoutParams());
 
-                        Float xView = imageViewPlan.getX();
-                        Float yView = imageViewPlan.getY();
+                        //Float xView = 0.0;//imageViewPlan.getX();
+                        //Float yView = 0.0;//imageViewPlan.getY();
 
                         Double longitude = Double.parseDouble(alarms.get(i).getLongitude());
                         Double latitude = Double.parseDouble(alarms.get(i).getLatitude());
 
                         ArrayList<Double> localisation =  posOnPlan(latitude, longitude);
-                        clonedMarkers.get(i).setX(localisation.get(1).floatValue() + xView);
-                        clonedMarkers.get(i).setY(localisation.get(0).floatValue()  + yView);
+                        clonedMarkers.get(i).setX(localisation.get(1).floatValue()  /*+xView*/);
+                        clonedMarkers.get(i).setY(localisation.get(0).floatValue()  /*+ yView*/);
                         clonedMarkers.get(i).setVisibility(View.VISIBLE);
 
                         View rootView = binding.getRoot();
@@ -438,6 +463,20 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                         parentView.addView(clonedMarkers.get(i));
 
                         Log.d("getAlarms","cloned" );
+                    }
+
+                    if (isDangerous && !alertShown){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setMessage("Dangerous gaz leak detected!")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // do something when the OK button is clicked
+                                    }
+                                });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                        alertShown = true;
                     }
 
                     //Toast.makeText(getActivity(), "body : " + response.body().toString(), Toast.LENGTH_SHORT).show();

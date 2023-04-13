@@ -30,6 +30,7 @@ import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.RetrofitInterface;
 import com.arangarcia.gazdetector.databinding.FragmentSensorBinding;
 import com.arangarcia.gazdetector.sendResult;
+import com.arangarcia.gazdetector.ui.alert.AlertFragment;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.jjoe64.graphview.GraphView;
@@ -91,9 +92,9 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
                 // Launching new Activity on selecting single List Item
 
                 handleConfirmAlert();
-                //Fragment fragment = null;
-                //fragment = new AlertFragment();
-                //replaceFragment(fragment);
+                Fragment fragment = null;
+                fragment = new AlertFragment();
+                replaceFragment(fragment);
             }
         });
         btnReset.setOnClickListener(new View.OnClickListener() {

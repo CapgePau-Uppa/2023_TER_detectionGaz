@@ -65,11 +65,11 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
     private Double latitude;
     private ArrayList<Double> loc;
 
-    // Coordinates of UPPA
-    private static Double[] topLeft = {43.3162199, -0.364762};
-    private static Double[] topRight = {43.316268, -0.3620184};
-    private static Double[] botLeft = {43.3137179, -0.3650232};
-    private static Double[] botRight = {43.3130416, -0.3619866};
+    // Coordinates of cap, UPPA in commentary
+    private static Double[] topLeft = /*{43.3162199, -0.364762}*/ {43.3193276422, -0.3636125675};
+    private static Double[] topRight = /*{43.316268, -0.3620184};*/ {43.3193276422, -0.3629366508};
+    private static Double[] botLeft = /*{43.3137179, -0.3650232};*/ {43.3190690788, -0.3636125675};
+    private static Double[] botRight = /*{43.3130416, -0.3619866};*/ {43.3190690788, -0.3629366508};
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

@@ -12,7 +12,7 @@ app.use(express.json());
 const addAlert = async (req, res) => {
     try{
         
-        console.log("add alert received :");
+        console.log("add alert request received");
         const newAlert = {
             longitude: req.body.longitude,
             latitude: req.body.latitude,
@@ -32,6 +32,7 @@ const addAlert = async (req, res) => {
 const getAlert = async (req, res) => {
     try{
         
+        console.log("get alert request received ");
         const arangarciaDB = client.db('arangarciaDB');
         const collection = arangarciaDB.collection('alertTable');
         let cursor = await collection.find()

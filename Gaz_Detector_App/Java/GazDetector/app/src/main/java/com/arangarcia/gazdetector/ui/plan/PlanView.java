@@ -2,6 +2,7 @@ package com.arangarcia.gazdetector.ui.plan;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -37,6 +38,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -85,6 +92,47 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Handle the config file
+        try {
+            // Ouvrir le fichier JSON dans le dossier "assets"
+            AssetManager manager = getContext().getAssets();
+            InputStream stream = null;
+            stream = manager.open("config.json");
+
+            // Lire le contenu du fichier
+            byte[] buffer = new byte[stream.available()];
+            stream.read(buffer);
+            String json = new String(buffer, "UTF-8");
+
+            // Convertir le contenu en objets Java
+            JSONObject config = new JSONObject(json);
+            JSONArray maps = config.getJSONArray("maps");
+
+            // plan 0 capge, plan 1 uppa
+            JSONObject curMap = maps.getJSONObject(0);
+            JSONObject corners = curMap.getJSONObject("corners");
+
+            JSONObject jsTopLeft = corners.getJSONObject("topLeft");
+            topLeft = new Double[]{jsTopLeft.getDouble("latitude"), jsTopLeft.getDouble("longitude")};
+
+            JSONObject jsTopRight = corners.getJSONObject("topRight");
+            topRight = new Double[]{jsTopRight.getDouble("latitude"), jsTopRight.getDouble("longitude")};
+
+            Log.d("Samuel_Plan",botRight[0].toString() + "; " + botRight[1].toString());
+            JSONObject jsBotLeft = corners.getJSONObject("botLeft");
+            botLeft = new Double[]{jsBotLeft.getDouble("latitude"), jsBotLeft.getDouble("longitude")};
+
+            JSONObject jsBotRight = corners.getJSONObject("botRight");
+            botRight = new Double[]{jsBotRight.getDouble("latitude"), jsBotRight.getDouble("longitude")};
+            Log.d("Samuel_Plan",botRight[0].toString() + "; " + botRight[1].toString());
+
+            // Fermer le fichier
+            stream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
 
         imageViewPlan = root.findViewById(R.id.imageViewPlan);

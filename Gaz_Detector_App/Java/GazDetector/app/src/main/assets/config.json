@@ -1,0 +1,50 @@
+{
+  "maps": [
+    {
+      "name": "capgemini",
+      "path": "drawable/imviewplan.jpg",
+      "corners": {
+        "topLeft":{
+          "latitude": 43.3193276422,
+          "longitude": -0.3636125675
+        },
+        "topRight":{
+          "latitude": 43.3193276422,
+          "longitude": -0.3629366508
+        },
+        "botLeft":{
+          "latitude": 43.3190690788,
+          "longitude": -0.3636125675
+        },
+        "botRight":{
+          "latitude": 43.3190690788,
+          "longitude": -0.3629366508
+        }
+      }
+    },
+    {
+      "name": "uppa",
+      "path": "drawable/uppa_plan.jpg",
+      "corners": {
+        "topLeft":{
+          "latitude": 43.3162199,
+          "longitude": -0.364762
+        },
+        "topRight":{
+          "latitude": 43.316268,
+          "longitude": -0.3620184
+        },
+        "botLeft":{
+          "latitude": 43.3137179,
+          "longitude": -0.3650232
+        },
+        "botRight":{
+          "latitude": 43.3130416,
+          "longitude": -0.3619866
+        }
+      }
+    }
+  ],
+  "baseUrl": "http://192.168.185.30:3000"
+}
+

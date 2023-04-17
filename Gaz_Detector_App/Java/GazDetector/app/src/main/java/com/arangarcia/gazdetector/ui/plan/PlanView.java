@@ -87,7 +87,7 @@ public class PlanView extends Fragment {
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Handle the config file
+        ///////////////// config.json file /////////////////////////
         try {
             // Open the JSON file in the "assets" folder
             AssetManager manager = getContext().getAssets();
@@ -121,7 +121,7 @@ public class PlanView extends Fragment {
 
             BASE_URL = config.getString("baseUrl");
 
-            // close the file
+            // Close the file
             stream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -136,7 +136,7 @@ public class PlanView extends Fragment {
         alertShown = false;
         clonedMarkers = new ArrayList<>();
 
-        //init the locationRequest
+        ///////////// INIT LOCATION REQUESTS ///////////
         locationRequestBuilder = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, DEFAULT_INTERVAL_MILLIS);
         locationRequestBuilder.setMinUpdateIntervalMillis(MIN_UPDATE_INTERVAL_MILLIS);
         // set up the loop that gets the geo localisation
@@ -157,13 +157,14 @@ public class PlanView extends Fragment {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
         startLocationUpdates();
-        /* code for zooming*/
+
+
+        ////////////// INIT ZOOM ///////////////
         Drawable img = imageViewPlan.getDrawable();
-        Log.d("Samuel_Plan", "width: " + ((Integer) img.getMinimumWidth()).toString());
-        Log.d("Samuel_Plan", "height: " + ((Integer) img.getMinimumHeight()).toString());
 
 
-        //value for imviewplan.png
+        // init the zoom and limit it
+        imageViewPlan.setZoom(2);
         imageViewPlan.setMinZoom(2);
         imageViewPlan.setZoom(2);
         /*
@@ -189,14 +190,10 @@ public class PlanView extends Fragment {
                 Integer wView = imageViewPlan.getWidth();
                 Integer hView = imageViewPlan.getHeight();
 
-                //Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
-
+                // If the touch get out of the image, no need to move the marker
                 if (x < 0 || y < 0 || x > wView || y > hView) {
                     return false;
                 }
-
-                //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
-                //Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
 
                 markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
                 markerView.setX(x + xView);
@@ -251,8 +248,6 @@ public class PlanView extends Fragment {
             return true;
         }
 
-        Log.d("Samuel_Plan","I'm not here");
-
         return false;
     }
     // converts a Geo localisation into their position on the map
@@ -260,48 +255,30 @@ public class PlanView extends Fragment {
         Log.d("Samuel_Plan", String.valueOf(location.getAccuracy()));
         ArrayList<Double> pos = new ArrayList<>(2);
 
-        ArrayList<Double> topLeftP = new ArrayList<>(2);
-        ArrayList<Double> topRightP = new ArrayList<>(2);
-        ArrayList<Double> botLeftP = new ArrayList<>(2);
-        ArrayList<Double> botRightP = new ArrayList<>(2);
+        ArrayList<Double> topLeftZoom = new ArrayList<>(2);
+        ArrayList<Double> topRightZoom = new ArrayList<>(2);
+        ArrayList<Double> botLeftZoom = new ArrayList<>(2);
+        ArrayList<Double> botRightZoom = new ArrayList<>(2);
 
         RectF rect = imageViewPlan.getZoomedRect();
 
         // get the corners of the zoomed map
-        topLeftP.add(topLeft[0]-(rect.top * (topLeft[0]-botLeft[0])));
-        topLeftP.add(topLeft[1]+(rect.left * (topRight[1]-topLeft[1])));
-        topRightP.add(topRight[0]-(rect.top * (topRight[0]-botRight[0])));
-        topRightP.add(topRight[1]-((1-rect.right) * (topRight[1]-topLeft[1])));
-        botLeftP.add(botLeft[0]+((1-rect.bottom) * (topLeft[0]-botLeft[0])));
-        botLeftP.add(botLeft[1]+(rect.left * (botRight[1]-botLeft[1])));
-        botRightP.add(botRight[0]+((1-rect.bottom) * (topRight[0]-botRight[0])));
-        botRightP.add(botRight[1]-((1-rect.right) * (botRight[1]-botLeft[1])));
+        topLeftZoom.add(topLeft[0]-(rect.top * (topLeft[0]-botLeft[0])));
+        topLeftZoom.add(topLeft[1]+(rect.left * (topRight[1]-topLeft[1])));
+        topRightZoom.add(topRight[0]-(rect.top * (topRight[0]-botRight[0])));
+        topRightZoom.add(topRight[1]-((1-rect.right) * (topRight[1]-topLeft[1])));
+        botLeftZoom.add(botLeft[0]+((1-rect.bottom) * (topLeft[0]-botLeft[0])));
+        botLeftZoom.add(botLeft[1]+(rect.left * (botRight[1]-botLeft[1])));
+        botRightZoom.add(botRight[0]+((1-rect.bottom) * (topRight[0]-botRight[0])));
+        botRightZoom.add(botRight[1]-((1-rect.right) * (botRight[1]-botLeft[1])));
 
-       if(lat < botLeftP.get(0)){
-            Log.d("Samuel_Plan","cond1 isnot ok: " + lat + "<" + botLeftP.get(0));
-        }
-        if(lat > topRightP.get(0)){
-            Log.d("Samuel_Plan","cond2 isnot ok: " + lat + ">" + topRightP.get(0));
-        }
-        if(longi < botLeftP.get(1)){
-            Log.d("Samuel_Plan","cond3 isnot ok: " + longi + "<" + botLeftP.get(1));
-        }
-        if(longi > topRightP.get(1)){
-            Log.d("Samuel_Plan","cond4 isnot ok: " + longi + ">" + topRightP.get(1));
-        }
+        if(lat >= botLeftZoom.get(0) && lat <= topRightZoom.get(0) &&
+                longi >= botLeftZoom.get(1) && longi <= topRightZoom.get(1)){
+            pos.add(imageViewPlan.getHeight() - ((lat - botLeftZoom.get(0)) / (topRightZoom.get(0) - botLeftZoom.get(0))) * imageViewPlan.getHeight());
+            pos.add(((longi - botLeftZoom.get(1)) / (topRightZoom.get(1) - botLeftZoom.get(1))) * imageViewPlan.getWidth());
 
-        if(lat >= botLeftP.get(0) && lat <= topRightP.get(0) &&
-                longi >= botLeftP.get(1) && longi <= topRightP.get(1)){
-            Log.d("Samuel_Plan","It's on it!");
-            pos.add(imageViewPlan.getHeight() - ((lat - botLeftP.get(0)) / (topRightP.get(0) - botLeftP.get(0))) * imageViewPlan.getHeight());
-            pos.add(((longi - botLeftP.get(1)) / (topRightP.get(1) - botLeftP.get(1))) * imageViewPlan.getWidth());
-
-            //pos.set(0, (double) (imageViewPlan.getHeight()/8));
-            //pos.set(1,(double) (imageViewPlan.getWidth()/8));
-            //Toast.makeText(getActivity(), "La position est : X: " + pos.get(1) + "; Y: "+pos.get(0),Toast.LENGTH_SHORT).show();
             return pos;
         }
-        Log.d("Samuel_Plan","It isn't on it!");
 
         pos.add(0.0);
         pos.add(0.0);
@@ -315,11 +292,9 @@ public class PlanView extends Fragment {
     public void displayLocation() {
         if(location == null){
             posTextView.setText("no position");
-            Log.d("Samuel_Plan","Location not found");
         }
         else {
             posTextView.setText(this.location.toString());
-            Log.d("Samuel_Plan","Location found");
         }
     }
     /*
@@ -371,7 +346,7 @@ public class PlanView extends Fragment {
             markerView.setY(y);
             markerView.setVisibility(View.VISIBLE);
         } else {
-            // The position isn't on the map
+            // Current location isn't on the map
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
             markerView.setVisibility(View.INVISIBLE);
         }

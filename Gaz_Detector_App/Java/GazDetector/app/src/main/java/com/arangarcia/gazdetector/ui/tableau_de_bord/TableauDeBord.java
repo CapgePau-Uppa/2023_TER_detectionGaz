@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.arangarcia.gazdetector.databinding.FragmentTableauDeBordBinding;
 
 public class TableauDeBord extends Fragment {
-
     private @NonNull FragmentTableauDeBordBinding binding;
     private TableauDeBordViewModel mViewModel;
 
@@ -27,11 +26,7 @@ public class TableauDeBord extends Fragment {
         binding = FragmentTableauDeBordBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-
-         return root;
-
-
+        return root;
     }
 
     @Override
@@ -39,5 +34,4 @@ public class TableauDeBord extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }

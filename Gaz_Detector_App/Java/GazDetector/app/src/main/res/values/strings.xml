@@ -9,6 +9,9 @@
     <string name="menu_tableau_bord">Dashboard</string>
     <string name="menu_plan">Map</string>
     <string name="menu_capteur">Sensor</string>
+    <string name="version">1.0</string>
+    <string name="title">Gaz Detector</string>
+
     <string name="patern">/}\{/g</string>
     <string name="nominale">Nominative</string>
     <string name="hazard_lvl">Danger Level :</string>

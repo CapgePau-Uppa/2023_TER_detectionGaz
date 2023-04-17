@@ -15,9 +15,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -56,8 +53,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class PlanView extends Fragment implements AdapterView.OnItemSelectedListener {
-    private String BASE_URL = "http://192.168.185.30:3000";
+public class PlanView extends Fragment {
+    private String BASE_URL;
     private static final int PERMISSION_FINE_LOCATION = 99;
     public static final int DEFAULT_INTERVAL_MILLIS = 1000;
     public static final int MIN_UPDATE_INTERVAL_MILLIS = 200;
@@ -73,18 +70,13 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private LocationCallback locationCallBack;
     //Google's API for location services
     private FusedLocationProviderClient fusedLocationProviderClient;
-    //delta modified with the test buttons
-    private double deltaLat;
-    private double deltaLong;
-    private Button btnLat;
-    private Button btnLong;
 
-    // Coordinates of cap, UPPA in commentary
-    private static Double[] topLeft = /*{43.3162199, -0.364762}*/ {43.3193276422, -0.3636125675};
-    private static Double[] topRight = /*{43.316268, -0.3620184};*/ {43.3193276422, -0.3629366508};
-    private static Double[] botLeft = /*{43.3137179, -0.3650232};*/ {43.3190690788, -0.3636125675};
-    private static Double[] botRight = /*{43.3130416, -0.3619866};*/ {43.3190690788, -0.3629366508};
 
+    // Coordinates of the map
+    private static Double[] topLeft;
+    private static Double[] topRight;
+    private static Double[] botLeft;
+    private static Double[] botRight;
     private ImageView markerView;
     private ArrayList<ImageView> clonedMarkers;
     private boolean alertShown;
@@ -92,27 +84,26 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        //HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         binding = FragmentPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         // Handle the config file
         try {
-            // Ouvrir le fichier JSON dans le dossier "assets"
+            // Open the JSON file in the "assets" folder
             AssetManager manager = getContext().getAssets();
             InputStream stream = null;
             stream = manager.open("config.json");
 
-            // Lire le contenu du fichier
+            // Read the content of the file
             byte[] buffer = new byte[stream.available()];
             stream.read(buffer);
             String json = new String(buffer, "UTF-8");
 
-            // Convertir le contenu en objets Java
+            // Convert the content in a Java object
             JSONObject config = new JSONObject(json);
             JSONArray maps = config.getJSONArray("maps");
 
-            // plan 0 capge, plan 1 uppa
+            // map 0 capge, map 1 uppa
             JSONObject curMap = maps.getJSONObject(0);
             JSONObject corners = curMap.getJSONObject("corners");
 
@@ -122,15 +113,15 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             JSONObject jsTopRight = corners.getJSONObject("topRight");
             topRight = new Double[]{jsTopRight.getDouble("latitude"), jsTopRight.getDouble("longitude")};
 
-            Log.d("Samuel_Plan",botRight[0].toString() + "; " + botRight[1].toString());
             JSONObject jsBotLeft = corners.getJSONObject("botLeft");
             botLeft = new Double[]{jsBotLeft.getDouble("latitude"), jsBotLeft.getDouble("longitude")};
 
             JSONObject jsBotRight = corners.getJSONObject("botRight");
             botRight = new Double[]{jsBotRight.getDouble("latitude"), jsBotRight.getDouble("longitude")};
-            Log.d("Samuel_Plan",botRight[0].toString() + "; " + botRight[1].toString());
 
-            // Fermer le fichier
+            BASE_URL = config.getString("baseUrl");
+
+            // close the file
             stream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -148,7 +139,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         //init the locationRequest
         locationRequestBuilder = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, DEFAULT_INTERVAL_MILLIS);
         locationRequestBuilder.setMinUpdateIntervalMillis(MIN_UPDATE_INTERVAL_MILLIS);
-
+        // set up the loop that gets the geo localisation
         locationCallBack = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -158,7 +149,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 location = locationResult.getLastLocation();
                 posTextView.setText("Lat: " + location.getLatitude() + "; Long: " + location.getLongitude());
                 Log.d("Samuel_Plan", location.toString());
-
 
                 getAlarms();
             }
@@ -176,17 +166,19 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         //value for imviewplan.png
         imageViewPlan.setMinZoom(2);
         imageViewPlan.setZoom(2);
-
+        /*
+        * debug purposes
+        **/
         imageViewPlan.setOnTouchImageViewListener(new com.ortiz.touchview.TouchImageView.OnTouchImageViewListener() {
             @Override
             public void onMove() {
-
                 //posTextView.setText(imageViewPlan.getZoomedRect().toString());
                 //Log.d("Samuel_Plan", "J'ai touché" + imageViewPlan.getCurrentZoom());
-
             }
         });
-
+        /*
+        * on touch, places a cursor on the map
+        **/
         imageViewPlan.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -211,35 +203,10 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                 markerView.setY(y + yView);
                 markerView.setVisibility(View.VISIBLE);
 
-
                 return true;
             }
         });
 
-        //init the test deltas
-        deltaLong = 0;
-        deltaLat = 0;
-
-        btnLat = (Button) root.findViewById(R.id.btnLat);
-        btnLong = (Button) root.findViewById(R.id.btnLong);
-
-        btnLat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deltaLat+=0.0001;
-            }
-        });
-
-        btnLong.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deltaLong+=0.0001;
-            }
-        });
-
-
-        spinner = root.findViewById(R.id.spAlert);
-        initSpinner();
         updateGPS();
 
         return root;
@@ -250,15 +217,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         super.onDestroyView();
         binding = null;
     }
-
-    private void initSpinner() {
-        String[] planNames = {"UPPA", "CapGemini"};
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, planNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener( this );
-    }
-
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("Samuel_Plan", "We're missing the persmissions");
@@ -278,9 +236,10 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
     private void stopLocationUpdates(){
         fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
     }
-
+    /*
+    * checks if the lacation is on the map
+    **/
     private boolean isOnPlan(){
-
         if(location == null){
             posTextView.setText("no position");
             Log.d("Samuel_Plan","Location not found"); // TODO -------------------------------------------------------------------
@@ -296,7 +255,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         return false;
     }
-    //need commentary
+    // converts a Geo localisation into their position on the map
     public ArrayList<Double> posOnPlan(double lat, double longi){
         Log.d("Samuel_Plan", String.valueOf(location.getAccuracy()));
         ArrayList<Double> pos = new ArrayList<>(2);
@@ -353,10 +312,6 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
         this.location = location;
     }
 
-    public Location getLocation() {
-        return location;
-    }
-
     public void displayLocation() {
         if(location == null){
             posTextView.setText("no position");
@@ -367,9 +322,11 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             Log.d("Samuel_Plan","Location found");
         }
     }
-
+    /*
+    * places the geo localisation of the phone on the map
+    **/
     private void updateGPS() {
-        if (getActivity().equals(null)){
+        if (getActivity() == null){
             return;
         }
 
@@ -393,77 +350,43 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
 
         displayLocation();
     }
-
+    /*
+    * puts a marker on the map
+    **/
     public void updatePosition(Location location){
-        com.arangarcia.gazdetector.ui.plan.Plan plan = new com.arangarcia.gazdetector.ui.plan.Plan(
-                getActivity(),
-                R.id.imageViewPlan,
-                topLeft[0],
-                topLeft[1],
-                botRight[0],
-                botRight[1]
-        );/*43., -0.3748915662826034,44.313623593101546, -0.3524817214585103*/ /*UPPA*/
-
-        // Vérifiez si la position actuelle est sur le plan
+        // Checks if the actual position is on the map
         if (isOnPlan()) {
             Log.d("Samuel_Plan","I'm on the plan!");
 
-            //Toast.makeText(getActivity(), "La position actuelle est sur le plan", Toast.LENGTH_SHORT).show();
-            // Obtenez les coordonnées sur le plan
-            /* code for puting the markerView in the right place*/
-
-
-            double lat = location.getLatitude() + deltaLat;
-            double longi = location.getLongitude() + deltaLong;
+            double lat = location.getLatitude();
+            double longi = location.getLongitude();
             ArrayList<Double> pos = posOnPlan(lat, longi);
 
 
             int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
             int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
 
-
-            //plan.getCoordinatesOnPlan(location.getLatitude(), location.getLongitude());
-            // Afficher les coordonnées sur le plan
-            //ImageView imageView = (ImageView) getView().findViewById(R.id.imageViewPlan);
-            //imageView.setImageBitmap(plan.getImage());
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
             markerView.setX(x);
             markerView.setY(y);
             markerView.setVisibility(View.VISIBLE);
         } else {
-            //Toast.makeText(getActivity(), "La position actualise n'est pas sur le plan", Toast.LENGTH_SHORT).show();
-
-            // La position actuelle n'est pas sur le plan
+            // The position isn't on the map
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
             markerView.setVisibility(View.INVISIBLE);
         }
     }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String text = parent.getItemAtPosition(position).toString();
-        if (text.equals("UPPA")){
-
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
-
+    /* pulls alarms from the database*/
     void getAlarms(){
-
+        if (getView() == null){
+            return;
+        }
         ConstraintLayout parentLayout = getView().findViewById(R.id.plan_view_id);
 
         for (int i = 0; i < clonedMarkers.size(); i++) {
             parentLayout.removeView(clonedMarkers.get(i));
-
         }
         HashMap<String, String> map = new HashMap<>();
-
-
 
         // Initialisation of the server connection
 
@@ -479,10 +402,7 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
             @Override
             public void onResponse(Call<ArrayList<alertPojo>> call, Response<ArrayList<alertPojo>> response) {
 
-                if (response.code() == 400) {
-                    //Toast.makeText(getActivity(), "Alert already added", Toast.LENGTH_SHORT).show();
-                } else if (response.code() == 200) {
-                    //Log.d("getAlarms","body : " + response.body().toString());
+               if (response.code() == 200) {
                     ArrayList<alertPojo> alarms = response.body();
                     clonedMarkers = new ArrayList<>();
 
@@ -534,13 +454,14 @@ public class PlanView extends Fragment implements AdapterView.OnItemSelectedList
                         alert.show();
                         alertShown = true;
                     }
-
-                    //Toast.makeText(getActivity(), "body : " + response.body().toString(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ArrayList<alertPojo>> call, Throwable t) {
+                if (getActivity() == null){
+                    return;
+                }
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

@@ -1,9 +1,7 @@
 package com.arangarcia.gazdetector.ui.alert;
 
+import android.content.res.AssetManager;
 import android.graphics.RectF;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,20 +13,23 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.RetrofitInterface;
 import com.arangarcia.gazdetector.databinding.FragmentAlertBinding;
 import com.arangarcia.gazdetector.sendResult;
-import com.felhr.usbserial.UsbSerialDevice;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -41,35 +42,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AlertFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private FragmentAlertBinding binding;
-    private String BASE_URL = "http://192.168.185.30:3000";
-    private UsbManager mUsbManager;
-    private UsbDevice mDevice = null;
-    private UsbSerialDevice mSerial = null;
-    private UsbDeviceConnection mConnection = null;
-    private String ACTION_USB_PERMISSION = "permission";
-
-    public TextView co2Concentration;
-
+    private String BASE_URL;
     private Retrofit retrofit;
     private RetrofitInterface retrofitInterface;
 
     public Spinner spinner;
-    private ArrayList<Double> smokeDP;
-    private ArrayList<Double> coDP;
-    private ArrayList<Double> lpgDP;
     private String dangerSelected = "Nominative";
     private Button btnReset;
     private Button btnAlert;
     private com.ortiz.touchview.TouchImageView imageViewPlan;
     ImageView markerView;
-    private Double latitude;
     private ArrayList<Double> loc;
-
-    // Coordinates of cap, UPPA in commentary
-    private static Double[] topLeft = /*{43.3162199, -0.364762}*/ {43.3193276422, -0.3636125675};
-    private static Double[] topRight = /*{43.316268, -0.3620184};*/ {43.3193276422, -0.3629366508};
-    private static Double[] botLeft = /*{43.3137179, -0.3650232};*/ {43.3190690788, -0.3636125675};
-    private static Double[] botRight = /*{43.3130416, -0.3619866};*/ {43.3190690788, -0.3629366508};
+    // Coordinates of the map
+    private static Double[] topLeft;
+    private static Double[] topRight;
+    private static Double[] botLeft;
+    private static Double[] botRight;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -78,7 +66,49 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         binding = FragmentAlertBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //////////////// INIT BUTTONS ////////////////////////////
+        // Handle the config file
+        try {
+            // Open the JSON file in the "assets" folder
+            AssetManager manager = getContext().getAssets();
+            InputStream stream = null;
+            stream = manager.open("config.json");
+
+            // Read the content of the file
+            byte[] buffer = new byte[stream.available()];
+            stream.read(buffer);
+            String json = new String(buffer, "UTF-8");
+
+            // Convert the content in a Java object
+            JSONObject config = new JSONObject(json);
+            JSONArray maps = config.getJSONArray("maps");
+
+            // map 0 capge, map 1 uppa
+            JSONObject curMap = maps.getJSONObject(0);
+            JSONObject corners = curMap.getJSONObject("corners");
+
+            JSONObject jsTopLeft = corners.getJSONObject("topLeft");
+            topLeft = new Double[]{jsTopLeft.getDouble("latitude"), jsTopLeft.getDouble("longitude")};
+
+            JSONObject jsTopRight = corners.getJSONObject("topRight");
+            topRight = new Double[]{jsTopRight.getDouble("latitude"), jsTopRight.getDouble("longitude")};
+
+            JSONObject jsBotLeft = corners.getJSONObject("botLeft");
+            botLeft = new Double[]{jsBotLeft.getDouble("latitude"), jsBotLeft.getDouble("longitude")};
+
+            JSONObject jsBotRight = corners.getJSONObject("botRight");
+            botRight = new Double[]{jsBotRight.getDouble("latitude"), jsBotRight.getDouble("longitude")};
+
+            BASE_URL = config.getString("baseUrl");
+
+            // close the file
+            stream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        //Initialisation of buttons
 
         btnAlert = (Button) root.findViewById(R.id.btnAlert);
         btnReset = (Button) root.findViewById(R.id.btnReset);
@@ -89,12 +119,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         btnAlert.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
-                // Launching new Activity on selecting single List Item
-
                 handleConfirmAlert();
-                //Fragment fragment = null;
-                //fragment = new AlertFragment();
-                //replaceFragment(fragment);
             }
         });
         btnReset.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +140,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         //value for imviewplan.png
         imageViewPlan.setMinZoom(2);
         imageViewPlan.setZoom(2);
-
+        /*
+            On click, a cursor is placed on the map and the position is stored
+         */
         imageViewPlan.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -135,7 +162,6 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
                 //Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
 
-                //ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
                 markerView.setX(x + xView);
                 markerView.setY(y + yView);
                 markerView.setVisibility(View.VISIBLE);
@@ -161,26 +187,6 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onDestroyView();
         binding = null;
     }
-
-    public void replaceFragment(Fragment someFragment) {
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.setReorderingAllowed(true);
-        transaction.replace(R.id.nav_host_fragment_content_main2, someFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
-    String data = new String();
-    /*
-     * Receives the Database in html and fills alert tables
-     */
-    private void parseData(String data) {
-
-    }
-
-
-
-
     private void initSpinner(){
         String[] dangerLevels = {"Nominative", "Important", "Urgent"};
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, dangerLevels);
@@ -189,24 +195,18 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         spinner.setOnItemSelectedListener( this );
         dangerSelected = dangerLevels[0];
     }
-
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String text = parent.getItemAtPosition(position).toString();
         dangerSelected = text;
-
-        //Toast.makeText(getActivity(), text+" level selected.", Toast.LENGTH_SHORT).show();
     }
-
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
-    //test
+    public void onNothingSelected(AdapterView<?> parent) {  }
+    /*
+    * sends an alert to the database
+    */
     private void handleConfirmAlert() {
         HashMap<String, String> map = new HashMap<>();
-
         if (loc == null || loc.size() == 0){
             Toast.makeText(getActivity(), "Please give a location.", Toast.LENGTH_SHORT).show();
             return;
@@ -248,7 +248,9 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
             }
         });
     }
-
+    /*
+    * converts a position on the map into a Geo localisation
+    **/
     public ArrayList<Double> posToLoc(double x, double y){
         ArrayList<Double> loc = new ArrayList<>(2);
 

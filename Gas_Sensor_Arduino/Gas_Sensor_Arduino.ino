@@ -11,14 +11,16 @@ void setup()
   Serial.begin(9600);
 
   mq2.begin();
-  delay(20000);
+  // waiting 20 seconds to let the captor warm up
+  delay(20000); 
 }
 
 void loop()
 {
-
+  // put true instead of false if you want to display the result in the console
   float *values = mq2.read(false);
   float smokeLvl = mq2.readSmoke()*1000;
+  // if the level isn't a number, the captor isn't warmed up so you need to restart
   if(smokeLvl == NAN  || smokeLvl == INFINITY){
     Serial.println("inf");
     resetFunc();
@@ -42,5 +44,6 @@ void loop()
   
   Serial.print("}");
 
-  delay(1000); // wait for a second
+  // wait for a second
+  delay(1000); 
 }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 
+// Draft of an unused class, must be updated
 public class Plan {
 
     private Bitmap image;

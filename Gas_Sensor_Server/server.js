@@ -9,6 +9,7 @@ const client = new MongoClient(url)
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
+
 const addAlert = async (req, res) => {
     try{
         
@@ -31,7 +32,6 @@ const addAlert = async (req, res) => {
 
 const getAlert = async (req, res) => {
     try{
-        
         console.log("get alert request received ");
         const arangarciaDB = client.db('arangarciaDB');
         const collection = arangarciaDB.collection('alertTable');
@@ -54,62 +54,6 @@ router.route("/addAlert").post( addAlert );
 router.route("/getAlert").post( getAlert );
 app.use("/arangarcia", router);
 
-/*
-mongoClient.connect(url, (err, db) => {
-    if (err) {
-        console.log("Error connecting to Mongo Client");
-    } else {
-        
-        const arangarciaDB = db.db('arangarciaDB');
-        const collection = arangarciaDB.collection('alertTable');
-
-        app.post('/addAlert', (req, res) => {
-
-            console.log("add alert received:");
-            const newAlert = {
-                longitude: req.body.longitude,
-                latitude: req.body.latitude,
-                danger: req.body.danger
-            }
-
-            collection.insertOne(newAlert, (err, result) => {
-                res.status(200).send();
-            })
-        })
-
-        app.post('/getAlerts', (req, res) => {
-
-            console.log("get alert received:");
-            collection.find().sort({'id': 1}).toArray(function(err, result) {
-                if(result == [] || result == ''){
-                 res.status(404).send();
-                }
-                else{
-                 res.status(200).send(output);
-                }
-            });
-
-            /*                GET specific alerts
-            let query = { danger: "Urgent" };
-            
-            collection.find(query, (err, result)=>{
-                if(result != null){
-                    const objToSend = {
-                        longitude: req.body.longitude,
-                        latitude: req.body.latitude,
-                        danger: req.body.danger
-                    }
-
-                    res.status(200).send();
-                }
-            } );
-            
-        });
-
-        
-       
-    }
-})*/
 
 app.listen(3000, () => {
     console.log("listening on port 3000");

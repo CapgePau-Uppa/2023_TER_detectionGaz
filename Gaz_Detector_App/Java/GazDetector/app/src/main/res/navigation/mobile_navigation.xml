@@ -13,9 +13,9 @@
 
     <fragment
         android:id="@+id/nav_plan"
-        android:name="com.arangarcia.gazdetector.ui.plan.PlanView"
+        android:name="com.arangarcia.gazdetector.ui.map.MapView"
         android:label="@string/menu_plan"
-        tools:layout="@layout/fragment_plan" />
+        tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/nav_slideshow"

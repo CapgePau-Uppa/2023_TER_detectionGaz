@@ -1,4 +1,4 @@
-package com.arangarcia.gazdetector.ui.plan;
+package com.arangarcia.gazdetector.ui.map;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -29,7 +29,7 @@ import androidx.fragment.app.Fragment;
 import com.arangarcia.gazdetector.R;
 import com.arangarcia.gazdetector.RetrofitInterface;
 import com.arangarcia.gazdetector.alertPojo;
-import com.arangarcia.gazdetector.databinding.FragmentPlanBinding;
+import com.arangarcia.gazdetector.databinding.FragmentMapBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -53,14 +53,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class PlanView extends Fragment {
+public class MapView extends Fragment {
     private String BASE_URL;
     private static final int PERMISSION_FINE_LOCATION = 99;
     public static final int DEFAULT_INTERVAL_MILLIS = 1000;
     public static final int MIN_UPDATE_INTERVAL_MILLIS = 200;
-    private FragmentPlanBinding binding;
+    private FragmentMapBinding binding;
     private Location location;
-    private com.ortiz.touchview.TouchImageView imageViewPlan;
+    private com.ortiz.touchview.TouchImageView imageViewMap;
     private TextView posTextView;
     public Spinner spinner;
     private Retrofit retrofit;
@@ -84,7 +84,7 @@ public class PlanView extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentPlanBinding.inflate(inflater, container, false);
+        binding = FragmentMapBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         ///////////////// config.json file /////////////////////////
@@ -129,7 +129,7 @@ public class PlanView extends Fragment {
         }
 
 
-        imageViewPlan = root.findViewById(R.id.imageViewPlan);
+        imageViewMap = root.findViewById(R.id.imageViewMap);
         posTextView = root.findViewById(R.id.posTextView);
 
         alertShown = false;
@@ -159,25 +159,25 @@ public class PlanView extends Fragment {
 
 
         ////////////// INIT ZOOM ///////////////
-        Drawable img = imageViewPlan.getDrawable();
+        Drawable img = imageViewMap.getDrawable();
 
 
         // init the zoom and limit it
-        imageViewPlan.setZoom(2);
-        imageViewPlan.setMinZoom(2);
-        imageViewPlan.setZoom(2);
+        imageViewMap.setZoom(2);
+        imageViewMap.setMinZoom(2);
+        imageViewMap.setZoom(2);
         /*
         * on touch, places a cursor on the map
         **/
-        imageViewPlan.setOnTouchListener(new View.OnTouchListener() {
+        imageViewMap.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 Float x = motionEvent.getX();
                 Float y = motionEvent.getY();
-                Float xView = imageViewPlan.getX();
-                Float yView = imageViewPlan.getY();
-                Integer wView = imageViewPlan.getWidth();
-                Integer hView = imageViewPlan.getHeight();
+                Float xView = imageViewMap.getX();
+                Float yView = imageViewMap.getY();
+                Integer wView = imageViewMap.getWidth();
+                Integer hView = imageViewMap.getHeight();
 
                 // If the touch get out of the image, no need to move the marker
                 if (x < 0 || y < 0 || x > wView || y > hView) {
@@ -225,10 +225,10 @@ public class PlanView extends Fragment {
     /*
     * checks if the lacation is on the map
     **/
-    private boolean isOnPlan(){
+    private boolean isOnMap(){
         if(location == null){
             posTextView.setText("no position");
-            Log.d("isOnPlan","Location not found"); // TODO -------------------------------------------------------------------
+            Log.d("isOnMap","Location not found"); // TODO -------------------------------------------------------------------
             return false;
         }
 
@@ -240,8 +240,8 @@ public class PlanView extends Fragment {
         return false;
     }
     // converts a Geo localisation into their position on the map
-    public ArrayList<Double> posOnPlan(double lat, double longi){
-        Log.d("posOnPlan", String.valueOf(location.getAccuracy()));
+    public ArrayList<Double> posOnMap(double lat, double longi){
+        Log.d("posOnMap", String.valueOf(location.getAccuracy()));
         ArrayList<Double> pos = new ArrayList<>(2);
 
         ArrayList<Double> topLeftZoom = new ArrayList<>(2);
@@ -249,7 +249,7 @@ public class PlanView extends Fragment {
         ArrayList<Double> botLeftZoom = new ArrayList<>(2);
         ArrayList<Double> botRightZoom = new ArrayList<>(2);
 
-        RectF rect = imageViewPlan.getZoomedRect();
+        RectF rect = imageViewMap.getZoomedRect();
 
         // get the corners of the zoomed map
         topLeftZoom.add(topLeft[0]-(rect.top * (topLeft[0]-botLeft[0])));
@@ -261,30 +261,14 @@ public class PlanView extends Fragment {
         botRightZoom.add(botRight[0]+((1-rect.bottom) * (topRight[0]-botRight[0])));
         botRightZoom.add(botRight[1]-((1-rect.right) * (botRight[1]-botLeft[1])));
 
-        if(lat < botLeftZoom.get(0)){
-            Log.d("posOnPlan","Go down");
-            Log.d("posOnPlan",lat + " < " + botLeftZoom.get(0));
-            Log.d("posOnPlan",lat + " < " + botLeft[0]);
-        }
-        if(lat > topRightZoom.get(0)){
-            Log.d("posOnPlan","Go up");
-        }
-        if(longi < botLeftZoom.get(1)){
-            Log.d("posOnPlan","Go left");
-            Log.d("posOnPlan",longi + " < " + botLeftZoom.get(0));
-        }
-        if(longi > topRightZoom.get(1)){
-            Log.d("posOnPlan","Go right");
-        }
-
         if(lat >= botLeftZoom.get(0) && lat <= topRightZoom.get(0) &&
                 longi >= botLeftZoom.get(1) && longi <= topRightZoom.get(1)){
-            pos.add(imageViewPlan.getHeight() - ((lat - botLeftZoom.get(0)) / (topRightZoom.get(0) - botLeftZoom.get(0))) * imageViewPlan.getHeight());
-            pos.add(((longi - botLeftZoom.get(1)) / (topRightZoom.get(1) - botLeftZoom.get(1))) * imageViewPlan.getWidth());
+            pos.add(imageViewMap.getHeight() - ((lat - botLeftZoom.get(0)) / (topRightZoom.get(0) - botLeftZoom.get(0))) * imageViewMap.getHeight());
+            pos.add(((longi - botLeftZoom.get(1)) / (topRightZoom.get(1) - botLeftZoom.get(1))) * imageViewMap.getWidth());
 
             return pos;
         }
-        Log.d("posOnPlan", "Not on zoomed map");
+        Log.d("posOnMap", "Not on zoomed map");
 
         pos.add(0.0);
         pos.add(0.0);
@@ -336,16 +320,14 @@ public class PlanView extends Fragment {
     **/
     public void updatePosition(Location location){
         // Checks if the actual position is on the map
-        if (isOnPlan()) {
-            Log.d("updatePosition","I'm on the plan!");
-
+        if (isOnMap()) {
             double lat = location.getLatitude();
             double longi = location.getLongitude();
-            ArrayList<Double> pos = posOnPlan(lat, longi);
+            ArrayList<Double> pos = posOnMap(lat, longi);
 
 
-            int x = (int) (pos.get(1).intValue()+imageViewPlan.getX());
-            int y = (int) (pos.get(0).intValue()+imageViewPlan.getY());
+            int x = (int) (pos.get(1).intValue()+ imageViewMap.getX());
+            int y = (int) (pos.get(0).intValue()+ imageViewMap.getY());
 
             ImageView markerView = (ImageView) getView().findViewById(R.id.imageViewMarker);
             markerView.setX(x);
@@ -362,7 +344,7 @@ public class PlanView extends Fragment {
         if (getView() == null){
             return;
         }
-        ConstraintLayout parentLayout = getView().findViewById(R.id.plan_view_id);
+        ConstraintLayout parentLayout = getView().findViewById(R.id.map_view_id);
 
         for (int i = 0; i < clonedMarkers.size(); i++) {
             parentLayout.removeView(clonedMarkers.get(i));
@@ -404,22 +386,19 @@ public class PlanView extends Fragment {
                         clonedMarkers.get(i).setImageDrawable(markerView.getDrawable());
                         clonedMarkers.get(i).setLayoutParams(markerView.getLayoutParams());
 
-                        //Float xView = 0.0;//imageViewPlan.getX();
-                        //Float yView = 0.0;//imageViewPlan.getY();
-
                         Double longitude = Double.parseDouble(alarms.get(i).getLongitude());
                         Double latitude = Double.parseDouble(alarms.get(i).getLatitude());
 
                         Log.d("getAlarms", "lat:" + latitude.toString());
                         Log.d("getAlarms", "long:" + longitude.toString());
 
-                        ArrayList<Double> localisation =  posOnPlan(latitude, longitude);
+                        ArrayList<Double> localisation =  posOnMap(latitude, longitude);
 
                         Log.d("getAlarms","x: " + localisation.get(1));
                         Log.d("getAlarms","y: " + localisation.get(0));
 
-                        clonedMarkers.get(i).setX(localisation.get(1).floatValue()+imageViewPlan.getX()  /*+xView*/);
-                        clonedMarkers.get(i).setY(localisation.get(0).floatValue()+imageViewPlan.getY()  /*+ yView*/);
+                        clonedMarkers.get(i).setX(localisation.get(1).floatValue()+ imageViewMap.getX()  /*+xView*/);
+                        clonedMarkers.get(i).setY(localisation.get(0).floatValue()+ imageViewMap.getY()  /*+ yView*/);
 
                         Log.d("getAlarms","x: " + clonedMarkers.get(i).getX());
                         Log.d("getAlarms","y: " + clonedMarkers.get(i).getY());
@@ -431,7 +410,7 @@ public class PlanView extends Fragment {
                         }
 
                         View rootView = binding.getRoot();
-                        ViewGroup parentView = (ViewGroup) rootView.findViewById(R.id.plan_view_id);
+                        ViewGroup parentView = (ViewGroup) rootView.findViewById(R.id.map_view_id);
                         parentView.addView(clonedMarkers.get(i));
 
                         Log.d("getAlarms","cloned" );

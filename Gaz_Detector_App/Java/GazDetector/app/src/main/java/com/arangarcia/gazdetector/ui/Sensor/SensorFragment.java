@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -37,9 +38,12 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,6 +84,30 @@ public class SensorFragment extends Fragment implements AdapterView.OnItemSelect
 
         binding = FragmentSensorBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        // 192.168.1.48
+
+        try {
+            // Open the JSON file in the "assets" folder
+            AssetManager manager = getContext().getAssets();
+            InputStream stream = null;
+            stream = manager.open("config.json");
+
+            // Read the content of the file
+            byte[] buffer = new byte[stream.available()];
+            stream.read(buffer);
+            String json = new String(buffer, "UTF-8");
+
+            // Convert the content in a Java object
+            JSONObject config = new JSONObject(json);
+
+            BASE_URL = config.getString("baseUrl");
+
+            // Close the file
+            stream.close();
+        } catch (IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         //////////////// INIT BUTTONS ////////////////////////////
 

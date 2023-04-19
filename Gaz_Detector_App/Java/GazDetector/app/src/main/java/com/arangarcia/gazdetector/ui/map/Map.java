@@ -1,4 +1,4 @@
-package com.arangarcia.gazdetector.ui.plan;
+package com.arangarcia.gazdetector.ui.map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 
 // Draft of an unused class, must be updated
-public class Plan {
+public class Map {
 
     private Bitmap image;
     private double latTopLeft;
@@ -14,7 +14,7 @@ public class Plan {
     private double latBottomRight;
     private double longBottomRight;
 
-    public Plan(Context context, int imageResId, double latTopLeft, double longTopLeft, double latBottomRight, double longBottomRight) {
+    public Map(Context context, int imageResId, double latTopLeft, double longTopLeft, double latBottomRight, double longBottomRight) {
         this.image = BitmapFactory.decodeResource(context.getResources(), imageResId);
         this.latTopLeft = latTopLeft;
         this.longTopLeft = longTopLeft;

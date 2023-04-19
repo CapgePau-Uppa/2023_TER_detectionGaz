@@ -1,7 +1,7 @@
-package com.arangarcia.gazdetector.ui.plan;
+package com.arangarcia.gazdetector.ui.map;
 
 import androidx.lifecycle.ViewModel;
 
-public class PlanViewModel extends ViewModel {
+public class MapViewModel extends ViewModel {
     // TODO: Implement the ViewModel
 }

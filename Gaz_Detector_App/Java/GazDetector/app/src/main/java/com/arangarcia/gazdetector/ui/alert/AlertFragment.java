@@ -102,11 +102,14 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
             // close the file
             stream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             throw new RuntimeException(e);
         }
+
+        Log.d("Samuel_Alert", String.valueOf(topLeft[0]));
+        Log.d("Samuel_Alert", String.valueOf(topRight[0]));
+        Log.d("Samuel_Alert", String.valueOf(botLeft[0]));
+        Log.d("Samuel_Alert", String.valueOf(botRight[0]));
 
         //Initialisation of buttons
 
@@ -153,14 +156,14 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
                 Integer wView = imageViewPlan.getWidth();
                 Integer hView = imageViewPlan.getHeight();
 
-                //Log.d("Samuel_Plan", "wView: " + wView + "; hView: " + hView);
+                //Log.d("Samuel_Alert", "wView: " + wView + "; hView: " + hView);
 
                 if (x < 0 || y < 0 || x > wView || y > hView) {
                     return false;
                 }
 
                 //posTextView.setText("X: " + x.toString() + "; Y: " + y.toString());
-                //Log.d("Samuel_Plan", "X: " + x.toString() + "; Y: " + y.toString());
+                //Log.d("Samuel_Alert", "X: " + x.toString() + "; Y: " + y.toString());
 
                 markerView.setX(x + xView);
                 markerView.setY(y + yView);
@@ -168,7 +171,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
 
                 Log.d("Samuel_Alert","Et on exécute la fonction qui donne la position gps");
 
-                loc = posToLoc(xView, yView);
+                loc = posToLoc(x, y);
 
                 Log.d("Samuel_Alert","Voilà la localisation : (lat: " + loc.get(0) + "; long: " + loc.get(1) + ")");
 
@@ -272,7 +275,7 @@ public class AlertFragment extends Fragment implements AdapterView.OnItemSelecte
         botRightP.add(botRight[1]-((1-rect.right) * (botRight[1]-botLeft[1])));
 
 
-        Log.d("Samuel_Plan","It's on it!");
+        Log.d("Samuel_Alert","It's on it!");
         loc.add(botLeftP.get(0) + ((imageViewPlan.getHeight() - y) / imageViewPlan.getHeight()) * (topRightP.get(0) - botLeftP.get(0)));
         loc.add(botLeftP.get(1) + (x / imageViewPlan.getWidth()) * (topRightP.get(1) - botLeftP.get(1)));
         return loc;

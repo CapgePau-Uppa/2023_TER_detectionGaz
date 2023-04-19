@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/plan_view_id"
+    android:id="@+id/map_view_id"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.plan.PlanView">
+    tools:context=".ui.map.MapView">
 
     <TextView
         android:id="@+id/textView3"
@@ -28,7 +28,7 @@
         android:id="@+id/posTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/plan_position"
+        android:text="@string/map_position"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.065"
@@ -37,7 +37,7 @@
         app:layout_constraintVertical_bias="0.2" />
 
     <com.ortiz.touchview.TouchImageView
-        android:id="@+id/imageViewPlan"
+        android:id="@+id/imageViewMap"
         android:layout_width="373dp"
         android:layout_height="300dp"
         android:src="@drawable/imviewplan"

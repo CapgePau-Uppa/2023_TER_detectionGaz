@@ -51,7 +51,7 @@ Use the 3 wires to connect:
 #### Step 4: Copy the code
 
 - Click on File > New to create a new file. 
-- Copy the code in path/to/our/code to your new file
+- Copy the code in Gas_Sensor_Arduino/Gas_Sensor_Arduino.ino to your new file.
 - Verify by clicking on Sketch > Verify/Compile. If you have errors, check if you followed each step and restart the Arduino software.
 
 #### Step 5: Upload
@@ -66,12 +66,21 @@ Required:
 - A computer or a server that will be running 24h/24
 
 #### Step 1: node.js installation 
-#### Step 2: express installation
-(handle requests)
-#### Step 3: mongodb database installation
 
-- install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
-- Once it's installed, click on the msi file
+Our tutorial works for Windows OS. 
+- Install the [node.js installer](https://nodejs.org/en/download). Select LTS then Windows Installer.
+- Once installed, look for your msi file and open it. 
+- Click on Next then on the checkbox "I accept the terms in the Licence Agreement". Click on Next.
+- You can see where node.js will be installed. Click on Next.
+- Don't change anything and click on Next.
+- You're offered to install tools but they're not needed. Click on Next.
+- Click on Install.
+- After the loading bar disappear, node.js is installed. Click on Finish.
+
+#### Step 2: mongodb database installation
+
+- Install [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+- Once it's installed, look for your msi file and open it.
 - A new Window is open. Click on Next.
 - Click on the checkbox to accept the Terms of Agreement then click on Next.
 - Click on Complete
@@ -79,10 +88,21 @@ Required:
 - Make sure "Install MongoDB Compass" is selected. Click on Next.
 - Click on Install.
 - Once the installation is finished, check if it's insalled. The default directory is C:/Program Files/MongoDB/Server/bin. There should be the mongo.exe file.
+- Open your file explorer. Go in the C: folder.
+- Create a new folder (use the right click, then select New folder). Name the new folder data then go in it.
+- Create a new folder and name it db. You can close your file explorer. 
+- Open MongoDBCompass.
+- Click on New connection.
+- Click on Save & Connect. Name it Alert and choose the color you want.
 
-#### Step 4: Run the server
+#### Step 3: Run the server
 
-
+- Download the server code in the Gas_Sensor_Server (the files ```server.js``` and ```package.json```). Check if both the files are in the same folder on your computer. 
+- Open the node.js command prompt (you can find it if type it in the windows search bar).
+- Using the ```cd``` command, go to the file where you downloaded the server code.
+- Type ```npm install```.
+- Run the server by typing ```node ./server.js```.
+- Open MongoDB Compass. Double click on the Alert in the Saved connections. 
 
 ## Download the app
 
@@ -97,4 +117,4 @@ Required:
 
 - Open the command prompt (you can find it if type it in the windows search bar)
 - Find your IPv4 by typing ```ipconfig```. In Wi-Fi card.
-- Replace "XXX.XXX.XXX.XXX" with your 
+- Replace "XXX.XXX.XXX.XXX" with your ip found next to "Wi-Fi card".

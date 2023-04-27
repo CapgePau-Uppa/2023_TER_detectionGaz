@@ -15,7 +15,7 @@
       - [Download and open the code](#download-and-open-the-code)
       - [Configure](#configure)
         - [Configure your IP](#configure-your-ip)
-      - [Configure your map](#configure-your-map)
+        - [Configure your map](#configure-your-map)
       - [Create the apk](#create-the-apk)
 
 
@@ -110,13 +110,18 @@ Our tutorial works for Windows OS.
 
 Required:
 - An android smartphone (the application does not work on a IOS smartphone)
-- [Android Studio]() installed on your computer
+- [Android Studio](https://developer.android.com/studio) installed on your computer
+- A map of your location as a jpg or jpeg file (the north of the map must be the top of the image)
 
 #### Download and open the code
 
+- Download the zip by clicking on Code > Download ZIP
+- Once the download is finished, unzip the file.
+- Open the folder Gas_Detector_App/Java/GasDetector in Android Studio.
+
 #### Configure
 
-- Open the config.json
+- Open the config.json in the folder src/main/assets
 
 ##### Configure your IP
 
@@ -124,6 +129,19 @@ Required:
 - Find your IPv4 by typing ```ipconfig```.
 - Replace the baseUrl "XXX.XXX.XXX.XXX" in the config.json with your ip found next to "Wi-Fi card".
 
-#### Configure your map
+##### Configure your map
+
+- Put the image of your map in the res/drawable folder.
+- Open the files fragment_map.xml and fragment_alert.xml in the folder res/layout.
+- For each, click on Code (on the top right), and replace "imviewplan" by the name of your map file (line 43 for fragment_map.xml and line 43 for fragment_alert.xml)
+- In the config file : 
+  - line 4, replace "capgemini" by the name you want
+  - line 5, replace "imviewplan.jpg" be the name of your map file
+  - For the corners, replace the locations by the locations of each corner of your map (you can get them on google map)
 
 #### Create the apk
+
+- Click on Build > Make Project and wait for the loading bar at the bottom of the app
+- Click on Build > Build Bundle(s) / APK(s) > Build APK(s)
+- In the pop up that appears, click on locate. 
+- Move the apk in your smartphone and execute it to download it. 

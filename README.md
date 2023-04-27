@@ -116,5 +116,5 @@ Required:
 ##### Configure your IP
 
 - Open the command prompt (you can find it if type it in the windows search bar)
-- Find your IPv4 by typing ```ipconfig```. In Wi-Fi card.
-- Replace "XXX.XXX.XXX.XXX" in the config.json with your ip found next to "Wi-Fi card".
+- Find your IPv4 by typing ```ipconfig```.
+- Replace the baseUrl "XXX.XXX.XXX.XXX" in the config.json with your ip found next to "Wi-Fi card".

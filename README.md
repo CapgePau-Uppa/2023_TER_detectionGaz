@@ -9,12 +9,14 @@
       - [Step 5: Upload](#step-5-upload)
   - [Set up the server](#set-up-the-server)
       - [Step 1: node.js installation](#step-1-nodejs-installation)
-      - [Step 2: express installation](#step-2-express-installation)
-      - [Step 3: mongodb database installation](#step-3-mongodb-database-installation)
-      - [Step 4: Run the server](#step-4-run-the-server)
+      - [Step 2: mongodb database installation](#step-2-mongodb-database-installation)
+      - [Step 3: Run the server](#step-3-run-the-server)
   - [Download the app](#download-the-app)
+      - [Download and open the code](#download-and-open-the-code)
       - [Configure](#configure)
         - [Configure your IP](#configure-your-ip)
+      - [Configure your map](#configure-your-map)
+      - [Create the apk](#create-the-apk)
 
 
 ## Arduino installation
@@ -108,6 +110,9 @@ Our tutorial works for Windows OS.
 
 Required:
 - An android smartphone (the application does not work on a IOS smartphone)
+- [Android Studio]() installed on your computer
+
+#### Download and open the code
 
 #### Configure
 
@@ -118,3 +123,7 @@ Required:
 - Open the command prompt (you can find it if type it in the windows search bar)
 - Find your IPv4 by typing ```ipconfig```.
 - Replace the baseUrl "XXX.XXX.XXX.XXX" in the config.json with your ip found next to "Wi-Fi card".
+
+#### Configure your map
+
+#### Create the apk

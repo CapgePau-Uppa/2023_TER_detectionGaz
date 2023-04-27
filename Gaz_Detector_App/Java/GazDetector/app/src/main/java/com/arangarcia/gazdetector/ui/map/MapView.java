@@ -228,7 +228,7 @@ public class MapView extends Fragment {
     private boolean isOnMap(){
         if(location == null){
             posTextView.setText("no position");
-            Log.d("isOnMap","Location not found"); // TODO -------------------------------------------------------------------
+            Log.d("isOnMap","Location not found");
             return false;
         }
 
